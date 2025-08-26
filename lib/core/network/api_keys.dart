@@ -1,3 +1,0 @@
-class ApiKeys {
-  ApiKeys._();
-}
