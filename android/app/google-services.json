@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "800605600145",
+    "project_id": "messageme-11b8c",
+    "storage_bucket": "messageme-11b8c.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:800605600145:android:78cd3b8c1d499baffc4230",
+        "android_client_info": {
+          "package_name": "com.example.message_me"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD0rE80EO3A5LKvGutJtFLuDNFtd5eNfps"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
