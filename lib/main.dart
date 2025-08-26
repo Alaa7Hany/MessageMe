@@ -1,7 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:message_me/core/di/dependency_injection.dart';
+import 'package:message_me/core/services/dependency_injection_service.dart';
 import 'package:message_me/core/utils/app_colors.dart';
 
 import 'core/routing/app_router.dart';
@@ -28,6 +28,12 @@ class MyApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         title: 'MessageMe',
         theme: ThemeData(
+          textSelectionTheme: const TextSelectionThemeData(
+            cursorColor: AppColors.accentColor,
+            selectionColor: AppColors.accentColor,
+            selectionHandleColor: AppColors.accentColor,
+          ),
+          splashColor: Colors.transparent,
           scaffoldBackgroundColor: AppColors.scaffoldBackground,
           appBarTheme: AppBarTheme(backgroundColor: AppColors.appBarBackground),
           bottomNavigationBarTheme: BottomNavigationBarThemeData(

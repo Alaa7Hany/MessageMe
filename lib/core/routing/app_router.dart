@@ -1,3 +1,6 @@
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
+import 'package:message_me/features/auth/logic/auth_cubit/auth_cubit.dart';
 import 'package:message_me/features/auth/views/pages/login_page.dart';
 
 import '../../features/auth/views/pages/signup_page.dart';
@@ -10,11 +13,16 @@ class AppRouter {
     //this arguments to be passed in any screen like this ( arguments as ClassName )
     // final arguments = settings.arguments;
 
+    final GetIt getIt = GetIt.instance;
+
     switch (settings.name) {
       // case Routes.onBoardingScreen:
       //   return MaterialPageRoute(builder: (_) => const OnboardingScreen());
       case Routes.login:
-        return MaterialPageRoute(builder: (_) => const LoginPage());
+        return MaterialPageRoute(
+          builder: (_) =>
+              BlocProvider.value(value: getIt<AuthCubit>(), child: LoginPage()),
+        );
       case Routes.signup:
         return MaterialPageRoute(builder: (_) => const SignupPage());
 
