@@ -24,6 +24,7 @@ class AuthCubit extends Cubit<AuthState> {
   static AuthCubit get(BuildContext context) => BlocProvider.of(context);
 
   void setupAuthStateListener() {
+    emit(AuthLoading());
     _authRepo.setupAuthStateListener((user) async {
       if (_isRegistering) {
         // Skip processing auth state changes during registration
@@ -123,6 +124,7 @@ class AuthCubit extends Cubit<AuthState> {
   Future<void> logout() async {
     emit(AuthLoading());
     await _authRepo.signOut();
+    emit(AuthLoggedOut());
   }
 
   Future<PlatformFile?> pickImage() async {

@@ -1,7 +1,7 @@
 class AppAssets {
   AppAssets._();
-  static const String imagesPath = 'assets/images/';
-  static const String logo = '${imagesPath}message_me_logo.png';
+  static const String _imagesPath = 'assets/images/';
+  static const String logo = '${_imagesPath}message_me_logo.png';
   static const String logoWithText =
-      '${imagesPath}message_me_logo_with_text.png';
+      '${_imagesPath}message_me_logo_with_text.png';
 }
