@@ -1,5 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
+import 'package:message_me/core/helpers/custom_page_routes.dart';
 import 'package:message_me/features/auth/logic/auth_cubit/auth_cubit.dart';
 import 'package:message_me/features/auth/views/pages/login_page.dart';
 
@@ -20,12 +21,12 @@ class AppRouter {
       // case Routes.onBoardingScreen:
       //   return MaterialPageRoute(builder: (_) => const OnboardingScreen());
       case Routes.login:
-        return MaterialPageRoute(builder: (_) => LoginPage());
+        return SlideRoute(page: LoginPage());
       case Routes.signup:
-        return MaterialPageRoute(builder: (_) => const SignupPage());
+        return SlideRoute(page: SignupPage());
 
       case Routes.home:
-        return MaterialPageRoute(builder: (_) => const HomePage());
+        return FadeRoute(page: const HomePage());
       default:
         return MaterialPageRoute(
           builder: (_) => Scaffold(
