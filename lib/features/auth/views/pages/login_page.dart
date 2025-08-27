@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:message_me/core/helpers/extensions.dart';
 import 'package:message_me/core/helpers/my_snackbar.dart';
 import 'package:message_me/core/helpers/text_field_validator.dart';
 import 'package:message_me/core/widgets/loading_screen_overlay.dart';
@@ -9,6 +10,7 @@ import 'package:message_me/features/auth/logic/auth_cubit/auth_cubit.dart';
 import 'package:message_me/features/auth/views/widgets/auth_button.dart';
 import 'package:message_me/features/auth/views/widgets/logo_widget.dart';
 
+import '../../../../core/routing/routes.dart';
 import '../../../../core/widgets/my_textform_field.dart';
 import '../../logic/auth_cubit/auth_state.dart';
 import '../widgets/auth_footer.dart';
@@ -23,11 +25,13 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   late final TextEditingController _emailController;
   late final TextEditingController _passwordController;
+  bool isVisible = false;
   final _formKey = GlobalKey<FormState>();
 
   @override
   void initState() {
     super.initState();
+    isVisible = false;
     _emailController = TextEditingController();
     _passwordController = TextEditingController();
   }
@@ -50,6 +54,7 @@ class _LoginPageState extends State<LoginPage> {
               MySnackbar.error(context, state.message);
             } else if (state is AuthLoginSuccess) {
               MySnackbar.success(context, state.message);
+              context.pushReplacementNamed(Routes.home);
             }
           },
           child: _buildUI(authCubit),
@@ -76,15 +81,15 @@ class _LoginPageState extends State<LoginPage> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   SizedBox(height: 30.h),
-                  LogoWidget(),
+                  const LogoWidget(),
                   SizedBox(height: 30.h),
-                  _loginForm(authCubit),
+                  _loginForm(),
                   SizedBox(height: 30.h),
                   AuthButton(
                     label: 'Login',
                     onPressed: () {
                       if (_formKey.currentState!.validate()) {
-                        authCubit.login(
+                        authCubit.loginWithEmailAndPassword(
                           _emailController.text,
                           _passwordController.text,
                         );
@@ -92,7 +97,7 @@ class _LoginPageState extends State<LoginPage> {
                     },
                   ),
                   SizedBox(height: 50.h),
-                  AuthFooter(inLogin: true),
+                  const AuthFooter(inLogin: true),
                 ],
               ),
             ),
@@ -102,7 +107,7 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  Widget _loginForm(AuthCubit authCubit) {
+  Widget _loginForm() {
     return Form(
       key: _formKey,
       child: Column(
@@ -113,29 +118,20 @@ class _LoginPageState extends State<LoginPage> {
             validator: TextFieldValidator.validateEmail,
           ),
           SizedBox(height: 20.h),
-          BlocBuilder<AuthCubit, AuthState>(
-            buildWhen: (_, current) => current is AuthTogglePasswordVisibility,
-            builder: (context, state) {
-              return MyTextformField(
-                label: 'Password',
-                controller: _passwordController,
-                validator: TextFieldValidator.validatePassword,
-                isObsecure:
-                    state is AuthTogglePasswordVisibility && state.isVisible
-                    ? false
-                    : true,
-                suffixIcon: InkWell(
-                  child: Icon(
-                    state is AuthTogglePasswordVisibility && state.isVisible
-                        ? Icons.visibility_off
-                        : Icons.visibility,
-                  ),
-                  onTap: () {
-                    authCubit.togglePasswordVisibility();
-                  },
-                ),
-              );
-            },
+          MyTextformField(
+            label: 'Password',
+            controller: _passwordController,
+            validator: TextFieldValidator.validatePassword,
+            isObsecure: !isVisible,
+
+            suffixIcon: InkWell(
+              child: Icon(isVisible ? Icons.visibility_off : Icons.visibility),
+              onTap: () {
+                setState(() {
+                  isVisible = !isVisible;
+                });
+              },
+            ),
           ),
         ],
       ),
