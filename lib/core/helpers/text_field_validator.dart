@@ -13,6 +13,24 @@ class TextFieldValidator {
     return null;
   }
 
+  /// Validates the input as a valid name.
+  static String? validateName(
+    String? value, {
+    String errorMessage = 'Please enter a valid name',
+  }) {
+    if (value == null || value.trim().isEmpty) {
+      return 'Name cannot be empty';
+    }
+    // Regex to allow letters, spaces, hyphens, and apostrophes.
+    // Ensures the name starts with a letter and any separator is followed by another letter.
+    final RegExp nameRegExp = RegExp(r"^[a-zA-Z]+(?:[\s-'][a-zA-Z]+)*$");
+
+    if (!nameRegExp.hasMatch(value)) {
+      return errorMessage;
+    }
+    return null;
+  }
+
   /// Validates the input as a valid email address format.
   static String? validateEmail(
     String? value, {
