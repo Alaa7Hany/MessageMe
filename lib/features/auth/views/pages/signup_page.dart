@@ -98,7 +98,7 @@ class _SignupPageState extends State<SignupPage> {
                         });
                       }
                     },
-                    child: RoundedImageFile(image: _imageFile),
+                    child: RoundedImageFile(image: _imageFile, radius: 100),
                   ),
                   SizedBox(height: 30.h),
                   _signupForm(),

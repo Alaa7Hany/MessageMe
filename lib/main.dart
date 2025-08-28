@@ -51,7 +51,7 @@ class MyApp extends StatelessWidget {
               unselectedItemColor: AppColors.secondaryTextColor,
             ),
           ),
-          initialRoute: Routes.login,
+          initialRoute: Routes.authWrapper,
           onGenerateRoute: appRouter.generateRoute,
         ),
       ),

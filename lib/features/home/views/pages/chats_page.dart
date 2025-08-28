@@ -1,13 +1,55 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:message_me/core/helpers/my_logger.dart';
+import 'package:message_me/core/helpers/my_snackbar.dart';
+import 'package:message_me/core/utils/app_colors.dart';
 import 'package:message_me/core/utils/app_text_styles.dart';
+import 'package:message_me/features/home/logic/chats_cubit/chats_cubit.dart';
+
+import '../../logic/chats_cubit/chats_state.dart';
+import '../widgets/chat_listtile.dart';
 
 class ChatsPage extends StatelessWidget {
   const ChatsPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Text('Chats Pag', style: AppTextStyles.f24w700primary()),
+    return Builder(
+      builder: (context) {
+        return BlocConsumer<ChatsCubit, ChatsState>(
+          listener: (context, state) {
+            if (state is ChatsError) {
+              MySnackbar.error(context, state.message);
+            }
+          },
+          builder: (context, state) {
+            MyLogger.bgBlue('ChatsPage, Building ChatsPage');
+            return Padding(
+              padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 10.h),
+              child: state is ChatsLoaded
+                  ? ListView.builder(
+                      itemCount: state.chats.length,
+                      itemBuilder: (context, index) {
+                        return ChatListtile(chatModel: state.chats[index]);
+                      },
+                    )
+                  : state is ChatsError
+                  ? Center(
+                      child: Text(
+                        'Something went wrong',
+                        style: AppTextStyles.f16w500primary(),
+                      ),
+                    )
+                  : Center(
+                      child: CircularProgressIndicator(
+                        color: AppColors.accentColor,
+                      ),
+                    ),
+            );
+          },
+        );
+      },
     );
   }
 }

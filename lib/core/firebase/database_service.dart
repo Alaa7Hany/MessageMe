@@ -39,4 +39,15 @@ class DatabaseService {
         .doc(userId)
         .delete();
   }
+
+  Stream<QuerySnapshot<Map<String, dynamic>>> getUserChats(String uid) {
+    return _firestore
+        .collection(FirebaseKeys.chatsCollection)
+        .where(FirebaseKeys.members, arrayContains: uid)
+        .orderBy(
+          FirebaseKeys.lastActive,
+          descending: true,
+        ) // Sort by most recent
+        .snapshots();
+  }
 }

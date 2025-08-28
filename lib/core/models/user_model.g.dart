@@ -11,7 +11,9 @@ UserModel _$UserModelFromJson(Map<String, dynamic> json) => UserModel(
   name: json['name'] as String,
   email: json['email'] as String,
   imageUrl: json['image_url'] as String,
-  lastActive: _timestampFromEpoch(json['last_active'] as Timestamp),
+  lastActive: const TimestampToDateTimeConverter().fromJson(
+    json['last_active'] as Timestamp,
+  ),
 );
 
 Map<String, dynamic> _$UserModelToJson(UserModel instance) => <String, dynamic>{
@@ -19,5 +21,7 @@ Map<String, dynamic> _$UserModelToJson(UserModel instance) => <String, dynamic>{
   'name': instance.name,
   'email': instance.email,
   'image_url': instance.imageUrl,
-  'last_active': _timestampToEpoch(instance.lastActive),
+  'last_active': const TimestampToDateTimeConverter().toJson(
+    instance.lastActive,
+  ),
 };
