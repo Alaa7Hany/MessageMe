@@ -64,7 +64,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    MyLogger.bgMagenta('HomePage, Building HomePage');
+    // MyLogger.bgMagenta('HomePage, Building HomePage');
     return MultiBlocProvider(
       providers: [
         BlocProvider<ChatsCubit>(

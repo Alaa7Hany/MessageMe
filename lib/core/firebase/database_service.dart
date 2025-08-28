@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:message_me/core/firebase/firebase_keys.dart';
 
-import '../models/user_model.dart';
+import '../helpers/my_logger.dart';
 
 class DatabaseService {
   final FirebaseFirestore _firestore;
@@ -24,13 +24,6 @@ class DatabaseService {
       return doc;
     }
     return null;
-  }
-
-  Future<void> updateUser(UserModel user) async {
-    await _firestore
-        .collection(FirebaseKeys.usersCollection)
-        .doc(user.uid)
-        .update(user.toJson());
   }
 
   Future<void> deleteUser(String userId) async {
@@ -69,5 +62,14 @@ class DatabaseService {
         .collection(FirebaseKeys.chatsCollection)
         .doc(chatId)
         .update(data);
+  }
+
+  Stream<QuerySnapshot<Map<String, dynamic>>> getChatMessages(String chatId) {
+    return _firestore
+        .collection(FirebaseKeys.chatsCollection)
+        .doc(chatId)
+        .collection(FirebaseKeys.messagesCollection)
+        .orderBy(FirebaseKeys.timeSent, descending: false)
+        .snapshots();
   }
 }
