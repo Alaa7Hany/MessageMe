@@ -19,12 +19,16 @@ class UserModel {
   @TimestampToDateTimeConverter()
   final DateTime lastActive;
 
+  @JsonKey(name: FirebaseKeys.isOnline)
+  final bool isOnline;
+
   UserModel({
     required this.uid,
     required this.name,
     required this.email,
     required this.imageUrl,
     required this.lastActive,
+    this.isOnline = false,
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) =>

@@ -5,9 +5,6 @@ import 'package:message_me/core/helpers/my_logger.dart';
 import 'package:message_me/core/models/user_model.dart';
 import 'package:message_me/features/home/data/models/chat_model.dart';
 
-import '../../../../core/services/dependency_injection_service.dart';
-import '../../../auth/logic/auth_cubit/auth_cubit.dart';
-
 class ChatsRepo {
   final DatabaseService _databaseService;
 

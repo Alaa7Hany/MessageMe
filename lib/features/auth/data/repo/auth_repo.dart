@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:message_me/core/models/user_model.dart';
@@ -7,6 +8,7 @@ import 'package:message_me/core/services/media_service.dart';
 
 import '../../../../core/firebase/auth_service.dart';
 import '../../../../core/firebase/database_service.dart';
+import '../../../../core/firebase/firebase_keys.dart';
 import '../../../../core/firebase/storage_service.dart';
 import '../../../../core/helpers/my_logger.dart';
 
@@ -93,6 +95,17 @@ class AuthRepo {
       } else {
         throw Exception('No image selected');
       }
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<void> updateUserStatus(String uid, bool isOnline) async {
+    try {
+      await _databaseService.updateDataInUser(uid, {
+        FirebaseKeys.isOnline: isOnline,
+        FirebaseKeys.lastActive: DateTime.now().toUtc(),
+      });
     } catch (e) {
       rethrow;
     }
