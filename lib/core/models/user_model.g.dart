@@ -14,6 +14,7 @@ UserModel _$UserModelFromJson(Map<String, dynamic> json) => UserModel(
   lastActive: const TimestampToDateTimeConverter().fromJson(
     json['last_active'] as Timestamp,
   ),
+  isOnline: json['is_online'] as bool? ?? false,
 );
 
 Map<String, dynamic> _$UserModelToJson(UserModel instance) => <String, dynamic>{
@@ -24,4 +25,5 @@ Map<String, dynamic> _$UserModelToJson(UserModel instance) => <String, dynamic>{
   'last_active': const TimestampToDateTimeConverter().toJson(
     instance.lastActive,
   ),
+  'is_online': instance.isOnline,
 };

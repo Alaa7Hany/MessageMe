@@ -15,6 +15,7 @@ class FirebaseKeys {
   static const String email = 'email';
   static const String imageUrl = 'image_url';
   static const String lastActive = 'last_active';
+  static const String isOnline = 'is_online';
 
   // Chat Model Keys
   static const String isGroup = 'is_group';

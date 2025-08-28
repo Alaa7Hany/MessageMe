@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:message_me/core/helpers/extensions.dart';
+import 'package:message_me/core/extensions/navigation_extensions.dart';
 import 'package:message_me/core/helpers/my_logger.dart';
 import 'package:message_me/core/routing/routes.dart';
 import 'package:message_me/core/utils/app_assets.dart';
@@ -23,9 +23,44 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   int _currentPage = 0;
   final List<Widget> _pages = const [ChatsPage(), UsersPage(), SettingPage()];
+
+  @override
+  void initState() {
+    super.initState();
+    // Start listening to app lifecycle events
+    WidgetsBinding.instance.addObserver(this);
+
+    // Set user to 'online' when the HomePage first loads
+    context.read<AuthCubit>().updateUserStatus(true);
+  }
+
+  @override
+  void dispose() {
+    // Stop listening to prevent memory leaks
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  //  Add the core lifecycle method
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+
+    // Get a reference to the cubit
+    final authCubit = context.read<AuthCubit>();
+
+    // Update status based on app state
+    if (state == AppLifecycleState.resumed) {
+      // App is in the foreground
+      authCubit.updateUserStatus(true);
+    } else {
+      // App is in the background (paused, inactive, etc.)
+      authCubit.updateUserStatus(false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {

@@ -123,6 +123,7 @@ class AuthCubit extends Cubit<AuthState> {
 
   Future<void> logout() async {
     emit(AuthLoading());
+    await updateUserStatus(false);
     await _authRepo.signOut();
     emit(AuthLoggedOut());
   }
@@ -133,6 +134,17 @@ class AuthCubit extends Cubit<AuthState> {
     } catch (e) {
       MyLogger.red("Error picking image: $e");
       return null;
+    }
+  }
+
+  Future<void> updateUserStatus(bool isOnline) async {
+    if (currentUser != null) {
+      try {
+        await _authRepo.updateUserStatus(currentUser!.uid, isOnline);
+        MyLogger.cyan("User is online");
+      } catch (e) {
+        MyLogger.red("Error updating online status: $e");
+      }
     }
   }
 }

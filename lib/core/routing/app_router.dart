@@ -1,12 +1,8 @@
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:get_it/get_it.dart';
 import 'package:message_me/core/helpers/custom_page_routes.dart';
 import 'package:message_me/features/auth/views/pages/login_page.dart';
 
 import '../../features/auth/views/pages/auth_wrapper_page.dart';
 import '../../features/auth/views/pages/signup_page.dart';
-import '../../features/home/data/repo/chats_repo.dart';
-import '../../features/home/logic/chats_cubit/chats_cubit.dart';
 import '../../features/home/views/pages/home_page.dart';
 import 'routes.dart';
 

@@ -2,15 +2,14 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:message_me/core/helpers/extensions.dart';
-import 'package:message_me/core/helpers/my_snackbar.dart';
+import 'package:message_me/core/extensions/navigation_extensions.dart';
+import 'package:message_me/core/widgets/my_snackbar.dart';
 import 'package:message_me/core/helpers/text_field_validator.dart';
 import 'package:message_me/core/widgets/loading_screen_overlay.dart';
 
 import 'package:message_me/features/auth/logic/auth_cubit/auth_cubit.dart';
 import 'package:message_me/features/auth/views/widgets/auth_button.dart';
 import 'package:message_me/features/auth/views/widgets/rounded_image.dart';
-import 'package:message_me/features/auth/views/widgets/logo_widget.dart';
 
 import '../../../../core/routing/routes.dart';
 import '../../../../core/widgets/my_textform_field.dart';

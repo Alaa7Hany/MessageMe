@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:message_me/core/helpers/my_logger.dart';
-import 'package:message_me/core/helpers/my_snackbar.dart';
+import 'package:message_me/core/widgets/my_snackbar.dart';
 import 'package:message_me/core/utils/app_colors.dart';
 import 'package:message_me/core/utils/app_text_styles.dart';
 import 'package:message_me/features/home/logic/chats_cubit/chats_cubit.dart';

@@ -25,9 +25,15 @@ class RoundedImageNetwork extends StatelessWidget {
 
 class RoundedImageFile extends StatelessWidget {
   final PlatformFile? image;
+  final bool isGroup;
   final double radius;
 
-  const RoundedImageFile({super.key, this.image, required this.radius});
+  const RoundedImageFile({
+    super.key,
+    this.image,
+    required this.radius,
+    this.isGroup = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -35,7 +41,11 @@ class RoundedImageFile extends StatelessWidget {
       radius: radius.r,
       backgroundImage: image != null ? FileImage(File(image!.path!)) : null,
       child: image == null
-          ? Icon(Icons.person, color: AppColors.accentColor, size: radius.r)
+          ? Icon(
+              isGroup ? Icons.group : Icons.person,
+              color: AppColors.accentColor,
+              size: radius.r,
+            )
           : null,
     );
   }

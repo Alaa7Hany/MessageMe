@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:message_me/core/extensions/chat_model_presenter.dart';
 import 'package:message_me/core/services/dependency_injection_service.dart';
 import 'package:message_me/features/auth/logic/auth_cubit/auth_cubit.dart';
 import 'package:message_me/features/auth/views/widgets/rounded_image.dart';
 
+import '../../../../core/utils/app_colors.dart';
 import '../../../../core/utils/app_text_styles.dart';
 import '../../data/models/chat_model.dart';
 
@@ -12,68 +15,54 @@ class ChatListtile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final String currentUid = getIt<AuthCubit>().currentUser!.uid;
     return ListTile(
-      leading: _getChatImageUrl() != null
-          ? RoundedImageNetwork(radius: 30, imageUrl: _getChatImageUrl()!)
-          : const RoundedImageFile(radius: 30),
+      leading: Stack(
+        children: [
+          chatModel.getChatImageUrl(currentUid) != null
+              ? RoundedImageNetwork(
+                  radius: 30,
+                  imageUrl: chatModel.getChatImageUrl(currentUid)!,
+                )
+              : RoundedImageFile(radius: 30, isGroup: chatModel.isGroup),
+          Positioned(
+            bottom: 0,
+            right: 0,
+            child: chatModel.isActive(currentUid)
+                ? Container(
+                    height: 16.r,
+                    width: 16.r,
+                    decoration: BoxDecoration(
+                      color: AppColors.accentColor,
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: AppColors.scaffoldBackground,
+                        width: 2.r,
+                      ),
+                    ),
+                  )
+                : SizedBox.shrink(),
+          ),
+        ],
+      ),
       title: Text(
-        _getChatTitle(),
+        chatModel.getChatTitle(currentUid),
         style: AppTextStyles.f16w500primary(),
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
       ),
       subtitle: Text(
-        _getChatSubtitle(),
+        chatModel.subtitle,
         style: AppTextStyles.f14w400secondary(),
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
       ),
       trailing: Text(
-        _formatLastActive(chatModel.lastActive),
+        chatModel.formattedLastActive,
         style: AppTextStyles.f12w400secondary(),
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
       ),
     );
-  }
-
-  String _getChatTitle() {
-    List<String> members = [];
-    for (var participant in chatModel.membersModels) {
-      if (participant.uid != getIt<AuthCubit>().currentUser!.uid) {
-        members.add(participant.name.split(' ').first);
-      }
-    }
-    return members.isNotEmpty ? members.join(', ') : 'Unknown';
-  }
-
-  String _getChatSubtitle() {
-    if (chatModel.lastMessage != null) {
-      return chatModel.lastMessage!.content;
-    }
-    return 'No messages yet';
-  }
-
-  String _formatLastActive(DateTime lastActive) {
-    final now = DateTime.now();
-    final difference = now.difference(lastActive);
-
-    if (difference.inDays > 0) {
-      return '${difference.inDays}d ago';
-    } else if (difference.inHours > 0) {
-      return '${difference.inHours}h ago';
-    } else if (difference.inMinutes > 0) {
-      return '${difference.inMinutes}m ago';
-    }
-    return 'Just now';
-  }
-
-  String? _getChatImageUrl() {
-    if (chatModel.imageUrl != null) {
-      return chatModel.imageUrl;
-    } else if (chatModel.membersModels.isNotEmpty) {
-      return chatModel.membersModels.first.imageUrl;
-    }
-    return null;
   }
 }

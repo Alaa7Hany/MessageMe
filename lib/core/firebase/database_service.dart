@@ -50,4 +50,24 @@ class DatabaseService {
         ) // Sort by most recent
         .snapshots();
   }
+
+  Future<void> updateDataInUser(
+    String userId,
+    Map<String, dynamic> data,
+  ) async {
+    await _firestore
+        .collection(FirebaseKeys.usersCollection)
+        .doc(userId)
+        .update(data);
+  }
+
+  Future<void> updateDataInChat(
+    String chatId,
+    Map<String, dynamic> data,
+  ) async {
+    await _firestore
+        .collection(FirebaseKeys.chatsCollection)
+        .doc(chatId)
+        .update(data);
+  }
 }
