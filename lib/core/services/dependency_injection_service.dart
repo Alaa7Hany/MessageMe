@@ -7,6 +7,7 @@ import 'package:message_me/core/services/media_service.dart';
 import 'package:message_me/features/auth/data/repo/auth_repo.dart';
 
 import '../../features/auth/logic/auth_cubit/auth_cubit.dart';
+import '../../features/home/data/repo/chats_repo.dart';
 import '../firebase/database_service.dart';
 import '../firebase/storage_service.dart';
 
@@ -31,6 +32,7 @@ Future<void> setupGetIt() async {
   getIt.registerLazySingleton<AuthRepo>(
     () => AuthRepo(getIt(), getIt(), getIt(), getIt()),
   );
+  getIt.registerLazySingleton<ChatsRepo>(() => ChatsRepo(getIt()));
 
   // Cubits
   getIt.registerLazySingleton<AuthCubit>(() => AuthCubit(getIt()));

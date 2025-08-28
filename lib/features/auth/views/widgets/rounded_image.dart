@@ -8,15 +8,16 @@ import '../../../../core/utils/app_colors.dart';
 
 class RoundedImageNetwork extends StatelessWidget {
   final String? imageUrl;
-  const RoundedImageNetwork({super.key, this.imageUrl});
+  final double radius;
+  const RoundedImageNetwork({super.key, this.imageUrl, required this.radius});
 
   @override
   Widget build(BuildContext context) {
     return CircleAvatar(
-      radius: 100.r,
+      radius: radius.r,
       backgroundImage: imageUrl != null ? NetworkImage(imageUrl!) : null,
       child: imageUrl == null
-          ? Icon(Icons.person, color: AppColors.accentColor, size: 100.r)
+          ? Icon(Icons.person, color: AppColors.accentColor, size: radius.r)
           : null,
     );
   }
@@ -24,15 +25,17 @@ class RoundedImageNetwork extends StatelessWidget {
 
 class RoundedImageFile extends StatelessWidget {
   final PlatformFile? image;
-  const RoundedImageFile({super.key, this.image});
+  final double radius;
+
+  const RoundedImageFile({super.key, this.image, required this.radius});
 
   @override
   Widget build(BuildContext context) {
     return CircleAvatar(
-      radius: 100.r,
+      radius: radius.r,
       backgroundImage: image != null ? FileImage(File(image!.path!)) : null,
       child: image == null
-          ? Icon(Icons.person, color: AppColors.accentColor, size: 100.r)
+          ? Icon(Icons.person, color: AppColors.accentColor, size: radius.r)
           : null,
     );
   }
