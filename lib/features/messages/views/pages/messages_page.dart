@@ -37,7 +37,7 @@ class MessagesPage extends StatelessWidget {
             builder: (context, state) {
               return Scaffold(
                 appBar: _buildAppBar(context),
-                body: _buildUi(context, state, currentId),
+                body: SafeArea(child: _buildUi(context, state, currentId)),
               );
             },
           );
