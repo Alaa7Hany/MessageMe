@@ -10,6 +10,7 @@ class MyTextformField extends StatelessWidget {
   final String? Function(String?) validator;
   final bool isObsecure;
   final Widget? suffixIcon;
+  final TextInputType keyboardType;
 
   const MyTextformField({
     super.key,
@@ -18,6 +19,7 @@ class MyTextformField extends StatelessWidget {
     required this.validator,
     this.isObsecure = false,
     this.suffixIcon,
+    this.keyboardType = TextInputType.text,
   });
 
   @override
@@ -28,6 +30,7 @@ class MyTextformField extends StatelessWidget {
       validator: validator,
       controller: controller,
       decoration: _textFieldDecoration(),
+      keyboardType: keyboardType,
       autovalidateMode: AutovalidateMode.onUnfocus,
       obscureText: isObsecure,
       style: AppTextStyles.f14w400primary(),

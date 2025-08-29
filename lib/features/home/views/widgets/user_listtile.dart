@@ -19,6 +19,7 @@ class UserListTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
+      contentPadding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 12.w),
       leading: RoundedImageNetwork(radius: 30, imageUrl: userModel.imageUrl),
       title: Text(userModel.name, style: AppTextStyles.f14w600primary()),
       onTap: onTap,

@@ -8,7 +8,7 @@ import 'package:message_me/core/helpers/text_field_validator.dart';
 import 'package:message_me/core/widgets/loading_screen_overlay.dart';
 
 import 'package:message_me/features/auth/logic/auth_cubit/auth_cubit.dart';
-import 'package:message_me/core/widgets/auth_button.dart';
+import 'package:message_me/core/widgets/my_elevated_button.dart';
 import 'package:message_me/core/widgets/rounded_image.dart';
 
 import '../../../../core/routing/routes.dart';

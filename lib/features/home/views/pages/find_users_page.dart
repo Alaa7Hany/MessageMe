@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:message_me/core/widgets/auth_button.dart';
+import 'package:message_me/core/extensions/navigation_extensions.dart';
+import 'package:message_me/core/utils/app_text_styles.dart';
+import 'package:message_me/core/widgets/my_elevated_button.dart';
+import 'package:message_me/core/widgets/my_snackbar.dart';
 import 'package:message_me/features/home/views/widgets/user_listtile.dart';
-import 'package:message_me/features/messages/views/widgets/send_message_field.dart';
 
+import '../../../../core/routing/routes.dart';
 import '../../logic/find_users_cubit/find_users_cubit.dart';
 import '../../logic/find_users_cubit/find_users_state.dart';
 import '../widgets/search_field.dart';
@@ -16,7 +19,13 @@ class FindUsersPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocConsumer<FindUsersCubit, FindUsersState>(
       listener: (context, state) {
-        // TODO: implement listener
+        if (state is FindUsersLoading) {
+        } else if (state is FindUsersError) {
+          MySnackbar.error(context, state.message);
+        } else if (state is FindUsersStartChat) {
+          context.pushNamed(Routes.messages, arguments: state.chatModel);
+          context.read<FindUsersCubit>().emitLoadedUsers();
+        }
       },
       builder: (context, state) {
         return _buildUI(context, state);
@@ -37,31 +46,46 @@ class FindUsersPage extends StatelessWidget {
                     .searchFieldController,
               ),
               SizedBox(height: 12.0.h),
-              Expanded(
-                child: ListView.builder(
-                  controller: context
-                      .read<FindUsersCubit>()
-                      .usersScrollController,
-                  itemCount: state.users.length + (state.hasMoreUsers ? 1 : 0),
-                  itemBuilder: (context, index) {
-                    if (index == state.users.length) {
-                      return Center(child: CircularProgressIndicator());
-                    }
-                    final user = state.users[index];
-                    return UserListTile(
-                      userModel: user,
-                      isSelected: state.selectedUsers.contains(user),
-                      onTap: () {
-                        if (!state.selectedUsers.contains(user)) {
-                          context.read<FindUsersCubit>().selectUser(user);
-                        } else {
-                          context.read<FindUsersCubit>().unselectUser(user);
-                        }
-                      },
-                    );
-                  },
-                ),
-              ),
+              state.users.isEmpty && !state.isSearching
+                  ? Expanded(
+                      child: Center(
+                        child: Text(
+                          'No Friend, Huh☹️',
+                          style: AppTextStyles.f24w700primary(),
+                        ),
+                      ),
+                    )
+                  : state.isSearching
+                  ? Expanded(child: Center(child: CircularProgressIndicator()))
+                  : Expanded(
+                      child: ListView.builder(
+                        controller: context
+                            .read<FindUsersCubit>()
+                            .usersScrollController,
+                        itemCount:
+                            state.users.length + (state.hasMoreUsers ? 1 : 0),
+                        itemBuilder: (context, index) {
+                          if (index == state.users.length) {
+                            return Center(child: CircularProgressIndicator());
+                          }
+
+                          final user = state.users[index];
+                          return UserListTile(
+                            userModel: user,
+                            isSelected: state.selectedUsers.contains(user),
+                            onTap: () {
+                              if (!state.selectedUsers.contains(user)) {
+                                context.read<FindUsersCubit>().selectUser(user);
+                              } else {
+                                context.read<FindUsersCubit>().unselectUser(
+                                  user,
+                                );
+                              }
+                            },
+                          );
+                        },
+                      ),
+                    ),
             ],
           ),
           AnimatedPositioned(
@@ -74,7 +98,9 @@ class FindUsersPage extends StatelessWidget {
               label: state.selectedUsers.length == 1
                   ? 'Start Chat With ${state.selectedUsers.first.name}'
                   : 'Start Chat With ${state.selectedUsers.map((user) => user.name.split(' ').first).join(', ')}',
-              onPressed: () {},
+              onPressed: () {
+                context.read<FindUsersCubit>().startChat();
+              },
             ),
           ),
         ],
