@@ -62,7 +62,7 @@ class MessageBubble extends StatelessWidget {
           message.type == 'text'
               ? Text(
                   message.content,
-                  style: AppTextStyles.f14w400primary().copyWith(
+                  style: AppTextStyles.f16w400primary().copyWith(
                     color: textColor,
                   ),
                 )

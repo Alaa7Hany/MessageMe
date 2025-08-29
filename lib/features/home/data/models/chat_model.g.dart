@@ -11,11 +11,9 @@ ChatModel _$ChatModelFromJson(Map<String, dynamic> json) => ChatModel(
   membersIds: (json['members'] as List<dynamic>)
       .map((e) => e as String)
       .toList(),
-  createdAt: const TimestampToDateTimeConverter().fromJson(
-    json['created_at'] as Timestamp,
-  ),
+  createdAt: const TimestampToDateTimeConverter().fromJson(json['created_at']),
   lastActive: const TimestampToDateTimeConverter().fromJson(
-    json['last_active'] as Timestamp,
+    json['last_active'],
   ),
   imageUrl: json['image_url'] as String?,
   lastMessageContent: json['last_message_content'] as String?,

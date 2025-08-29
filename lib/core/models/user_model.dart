@@ -12,6 +12,9 @@ class UserModel {
   final String name;
   final String email;
 
+  @JsonKey(name: FirebaseKeys.nameToLowercase)
+  final String nameToLowercase;
+
   @JsonKey(name: FirebaseKeys.imageUrl)
   final String imageUrl;
 
@@ -25,6 +28,7 @@ class UserModel {
   UserModel({
     required this.uid,
     required this.name,
+    required this.nameToLowercase,
     required this.email,
     required this.imageUrl,
     required this.lastActive,

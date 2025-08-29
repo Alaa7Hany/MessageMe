@@ -19,7 +19,8 @@ class ChatListtile extends StatelessWidget {
     return ListTile(
       leading: Stack(
         children: [
-          chatModel.getChatImageUrl(currentUid) != null
+          chatModel.getChatImageUrl(currentUid) != null &&
+                  chatModel.getChatImageUrl(currentUid) != ''
               ? RoundedImageNetwork(
                   radius: 30,
                   imageUrl: chatModel.getChatImageUrl(currentUid)!,

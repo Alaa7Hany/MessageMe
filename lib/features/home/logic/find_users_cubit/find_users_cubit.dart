@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:message_me/core/services/dependency_injection_service.dart';
@@ -12,11 +14,16 @@ class FindUsersCubit extends Cubit<FindUsersState> {
   final FindUsersRepo _findUsersRepo;
 
   FindUsersCubit(this._findUsersRepo) : super(FindUsersInitial()) {
+    _loadInitialUsersPage();
     _setupScrollListener();
+    searchFieldController.addListener(_onSearchChanged);
   }
 
   ScrollController usersScrollController = ScrollController();
+
   TextEditingController searchFieldController = TextEditingController();
+  Timer? _debounce;
+
   final _authCubit = getIt<AuthCubit>();
 
   final List<UserModel> _selectedUsers = [];
@@ -30,7 +37,7 @@ class FindUsersCubit extends Cubit<FindUsersState> {
 
   void _setupScrollListener() {
     usersScrollController.addListener(() {
-      // If the user scrolls to the very top of the list
+      // If the user scrolls to the very bottom of the list
       if (usersScrollController.position.pixels ==
           usersScrollController.position.maxScrollExtent) {
         _loadMoreUsers();
@@ -42,12 +49,84 @@ class FindUsersCubit extends Cubit<FindUsersState> {
   Future<void> close() {
     usersScrollController.dispose();
     searchFieldController.dispose();
+    _debounce?.cancel();
     return super.close();
   }
 
-  void loadInitialUsersPage() async {
-    emit(FindUsersLoading());
+  void _onSearchChanged() {
+    // Cancel the previous timer if it's still active
+    if (_debounce?.isActive ?? false) _debounce?.cancel();
+
+    // Start a new timer. The search will only run after 500ms of no typing.
+    _debounce = Timer(const Duration(milliseconds: 500), () {
+      final query = searchFieldController.text.trim();
+      if (query.isEmpty) {
+        // If search is cleared, reload the initial paginated list
+        _loadInitialUsersPage(isHardRefresh: false);
+      } else {
+        _performSearch(query);
+      }
+    });
+  }
+
+  void _performSearch(String query) async {
+    // Reset the list for new search results
+    _users.clear();
+    _lastUser = null;
+
+    // Emit a new loaded state to show an inline loading indicator
+    emit(
+      FindUsersLoaded(
+        [],
+        false,
+        selectedUsers: _selectedUsers,
+        isSearching: true,
+      ),
+    );
+
     try {
+      final results = await _findUsersRepo.searchUsers(
+        searchQuery: query,
+        currentUserId: _authCubit.currentUser!.uid,
+        limit: limit,
+      );
+      _users.addAll(results);
+
+      _hasMoreUsers = false;
+      emit(
+        FindUsersLoaded(
+          _users,
+          _hasMoreUsers,
+          selectedUsers: _selectedUsers,
+          isSearching: false,
+        ),
+      );
+      MyLogger.yellow('Search results are: ${_users.length}');
+    } catch (e) {
+      emit(FindUsersError(e.toString()));
+    }
+  }
+
+  void emitLoadedUsers() {
+    MyLogger.magenta('Emitting loaded users');
+    _selectedUsers.clear();
+    emit(FindUsersLoaded(_users, _hasMoreUsers, selectedUsers: _selectedUsers));
+  }
+
+  void _loadInitialUsersPage({bool isHardRefresh = true}) async {
+    _users.clear();
+    _lastUser = null;
+    _hasMoreUsers = true;
+    _selectedUsers.clear();
+
+    // to have the ability to load data without emitting a new state of loading
+    if (isHardRefresh) {
+      emit(FindUsersLoading());
+    }
+
+    try {
+      searchFieldController.clear();
+
       final String? uid = _authCubit.currentUser?.uid;
       if (uid == null) {
         MyLogger.red('User is not logged in to load Users');
@@ -67,6 +146,7 @@ class FindUsersCubit extends Cubit<FindUsersState> {
       emit(
         FindUsersLoaded(_users, _hasMoreUsers, selectedUsers: _selectedUsers),
       );
+      MyLogger.yellow('Loaded initial users: ${_users.length}');
     } catch (e) {
       MyLogger.red('Error loading users: $e');
       emit(FindUsersError(e.toString()));
@@ -118,12 +198,21 @@ class FindUsersCubit extends Cubit<FindUsersState> {
     emit(FindUsersLoaded(_users, _hasMoreUsers, selectedUsers: _selectedUsers));
   }
 
-  void startPrivateChat(UserModel user) {
-    emit(FindUsersStartPrivateChat(user));
-  }
-
-  void startGroupChat(List<UserModel> users) {
-    emit(FindUsersStartGroupChat(users));
+  void startChat() async {
+    emit(FindUsersLoading());
+    try {
+      final chatModel = await _findUsersRepo.createOrGetChat(
+        _authCubit.currentUser!,
+        _selectedUsers,
+      );
+      emit(FindUsersStartChat(chatModel));
+    } catch (e) {
+      MyLogger.red('Error starting chat: $e');
+      emit(FindUsersError('Error Starting Chat'));
+      emit(
+        FindUsersLoaded(_users, _hasMoreUsers, selectedUsers: _selectedUsers),
+      );
+    }
   }
 
   void searchUsers() {}

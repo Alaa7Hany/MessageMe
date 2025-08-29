@@ -7,7 +7,7 @@ import 'package:message_me/core/helpers/text_field_validator.dart';
 import 'package:message_me/core/widgets/loading_screen_overlay.dart';
 
 import 'package:message_me/features/auth/logic/auth_cubit/auth_cubit.dart';
-import 'package:message_me/core/widgets/auth_button.dart';
+import 'package:message_me/core/widgets/my_elevated_button.dart';
 import 'package:message_me/features/auth/views/widgets/logo_widget.dart';
 
 import '../../../../core/routing/routes.dart';
@@ -116,6 +116,7 @@ class _LoginPageState extends State<LoginPage> {
             label: 'Email',
             controller: _emailController,
             validator: TextFieldValidator.validateEmail,
+            keyboardType: TextInputType.emailAddress,
           ),
           SizedBox(height: 20.h),
           MyTextformField(
@@ -123,6 +124,7 @@ class _LoginPageState extends State<LoginPage> {
             controller: _passwordController,
             validator: TextFieldValidator.validatePassword,
             isObsecure: !isVisible,
+            keyboardType: TextInputType.visiblePassword,
 
             suffixIcon: InkWell(
               child: Icon(isVisible ? Icons.visibility_off : Icons.visibility),

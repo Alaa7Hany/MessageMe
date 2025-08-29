@@ -58,12 +58,11 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
           create: (context) => ChatsCubit(getIt<ChatsRepo>())..loadChats(),
         ),
         BlocProvider(
-          create: (context) =>
-              FindUsersCubit(getIt<FindUsersRepo>())..loadInitialUsersPage(),
+          create: (context) => FindUsersCubit(getIt<FindUsersRepo>()),
         ),
       ],
       child: Scaffold(
-        appBar: buildAppBar(context),
+        appBar: _buildAppBar(context),
 
         bottomNavigationBar: BottomNavigationBar(
           currentIndex: _currentPage,
@@ -92,20 +91,27 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     );
   }
 
-  AppBar buildAppBar(BuildContext context) {
+  AppBar _buildAppBar(BuildContext context) {
     return AppBar(
-      title: Image.asset(AppAssets.logoWithText, scale: 7.h),
+      title: Image.asset(AppAssets.logoWithText, height: 120.h, width: 140.w),
       centerTitle: false,
       automaticallyImplyLeading: false,
       actions: [
         BlocListener<AuthCubit, AuthState>(
           listener: (context, state) {
             if (state is AuthLoggedOut) {
-              context.pushReplacementNamed(Routes.login);
+              Navigator.of(context).pushNamedAndRemoveUntil(
+                Routes.login,
+                (Route<dynamic> route) => false,
+              );
             }
           },
           child: IconButton(
-            icon: const Icon(Icons.logout, color: AppColors.primaryTextColor),
+            icon: Icon(
+              Icons.logout,
+              color: AppColors.primaryTextColor,
+              size: 35.h,
+            ),
             onPressed: () {
               AuthCubit.get(context).logout();
             },

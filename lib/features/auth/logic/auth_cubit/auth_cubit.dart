@@ -93,6 +93,7 @@ class AuthCubit extends Cubit<AuthState> {
           uid: uid,
           email: email,
           name: name,
+          nameToLowercase: name.toLowerCase(),
           lastActive: DateTime.now(),
           imageUrl: imageUrl,
         );

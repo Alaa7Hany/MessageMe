@@ -1,3 +1,5 @@
+import 'package:message_me/features/home/data/models/chat_model.dart';
+
 import '../../../../core/models/user_model.dart';
 
 abstract class FindUsersState {}
@@ -10,8 +12,14 @@ class FindUsersLoaded extends FindUsersState {
   final List<UserModel> users;
   final bool hasMoreUsers;
   final List<UserModel> selectedUsers;
+  final bool isSearching;
 
-  FindUsersLoaded(this.users, this.hasMoreUsers, {required this.selectedUsers});
+  FindUsersLoaded(
+    this.users,
+    this.hasMoreUsers, {
+    required this.selectedUsers,
+    this.isSearching = false,
+  });
 }
 
 class FindUsersError extends FindUsersState {
@@ -20,20 +28,8 @@ class FindUsersError extends FindUsersState {
   FindUsersError(this.message);
 }
 
-class FindUsersStartPrivateChat extends FindUsersState {
-  final UserModel user;
+class FindUsersStartChat extends FindUsersState {
+  final ChatModel chatModel;
 
-  FindUsersStartPrivateChat(this.user);
-}
-
-class FindUsersStartGroupChat extends FindUsersState {
-  final List<UserModel> users;
-
-  FindUsersStartGroupChat(this.users);
-}
-
-class FindUsersStartChatError extends FindUsersState {
-  final String message;
-
-  FindUsersStartChatError(this.message);
+  FindUsersStartChat(this.chatModel);
 }
