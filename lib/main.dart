@@ -33,6 +33,9 @@ class MyApp extends StatelessWidget {
           debugShowCheckedModeBanner: false,
           title: 'MessageMe',
           theme: ThemeData(
+            progressIndicatorTheme: ProgressIndicatorThemeData(
+              color: AppColors.accentColor,
+            ),
             textSelectionTheme: const TextSelectionThemeData(
               cursorColor: AppColors.accentColor,
               selectionColor: AppColors.accentColor,

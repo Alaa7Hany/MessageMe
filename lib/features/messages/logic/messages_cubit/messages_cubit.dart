@@ -74,13 +74,7 @@ class MessagesCubit extends Cubit<MessagesState> {
       if (messagesPage.length < 25) {
         _hasMoreMessages = false;
       }
-      emit(
-        MessagesLoaded(
-          _messages,
-          hasMore: _hasMoreMessages,
-          isLoadingMore: false,
-        ),
-      );
+      emit(MessagesLoaded(_messages, hasMore: _hasMoreMessages));
     } catch (e) {
       emit(MessagesError(e.toString()));
     }
@@ -90,9 +84,7 @@ class MessagesCubit extends Cubit<MessagesState> {
     if (_isLoadingMore || !_hasMoreMessages) return;
 
     _isLoadingMore = true;
-    emit(
-      MessagesLoaded(_messages, hasMore: _hasMoreMessages, isLoadingMore: true),
-    );
+    emit(MessagesLoaded(_messages, hasMore: _hasMoreMessages));
 
     try {
       final messagesPage = await _messagesRepo.getMessagesPage(
@@ -107,23 +99,11 @@ class MessagesCubit extends Cubit<MessagesState> {
         _messages.addAll(messagesPage);
       }
       _isLoadingMore = false;
-      emit(
-        MessagesLoaded(
-          _messages,
-          hasMore: _hasMoreMessages,
-          isLoadingMore: false,
-        ),
-      );
+      emit(MessagesLoaded(_messages, hasMore: _hasMoreMessages));
     } catch (e) {
       // Handle error, maybe emit an error state
       _isLoadingMore = false;
-      emit(
-        MessagesLoaded(
-          _messages,
-          hasMore: _hasMoreMessages,
-          isLoadingMore: false,
-        ),
-      );
+      emit(MessagesLoaded(_messages, hasMore: _hasMoreMessages));
     }
   }
 
@@ -137,13 +117,7 @@ class MessagesCubit extends Cubit<MessagesState> {
           // Add new messages to the beginning of the list (since it's reversed in UI)
           _messages.insert(0, newMessages.last);
 
-          emit(
-            MessagesLoaded(
-              _messages,
-              hasMore: _hasMoreMessages,
-              isLoadingMore: false,
-            ),
-          );
+          emit(MessagesLoaded(_messages, hasMore: _hasMoreMessages));
           scrollToBottom();
         });
   }

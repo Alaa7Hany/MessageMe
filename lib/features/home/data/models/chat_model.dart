@@ -4,7 +4,6 @@ import 'package:message_me/core/firebase/firebase_keys.dart';
 import 'package:message_me/core/models/user_model.dart';
 
 import '../../../../core/helpers/time_stamp_convertor.dart';
-import '../../../messages/data/models/message_model.dart';
 
 part 'chat_model.g.dart';
 

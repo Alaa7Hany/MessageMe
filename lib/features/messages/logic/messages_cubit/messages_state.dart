@@ -9,13 +9,8 @@ class MessagesLoading extends MessagesState {}
 class MessagesLoaded extends MessagesState {
   final List<MessageModel> messages;
   final bool hasMore;
-  final bool isLoadingMore;
 
-  MessagesLoaded(
-    this.messages, {
-    this.hasMore = true,
-    this.isLoadingMore = false,
-  });
+  MessagesLoaded(this.messages, {this.hasMore = true});
 }
 
 class MessagesError extends MessagesState {
