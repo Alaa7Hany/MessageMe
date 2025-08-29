@@ -1,148 +1,89 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:message_me/core/firebase/firebase_keys.dart';
 
-import '../helpers/my_logger.dart';
+// A type definition for a function that builds a Firestore query.
+typedef QueryBuilder =
+    Query<Map<String, dynamic>> Function(Query<Map<String, dynamic>> query);
+
+// MODIFIED: The builder now receives the batch AND the firestore instance.
+typedef BatchBuilder =
+    void Function(WriteBatch batch, FirebaseFirestore firestore);
 
 class DatabaseService {
   final FirebaseFirestore _firestore;
 
   DatabaseService(this._firestore);
 
-  Future<void> addUser(String uid, Map<String, dynamic> userData) async {
-    await _firestore
-        .collection(FirebaseKeys.usersCollection)
-        .doc(uid)
-        .set(userData);
+  // ... (setData, updateData, addData, etc. remain unchanged) ...
+
+  Future<void> setData({
+    required String path,
+    required Map<String, dynamic> data,
+    bool merge = false,
+  }) {
+    final reference = _firestore.doc(path);
+    return reference.set(data, SetOptions(merge: merge));
   }
 
-  Future<DocumentSnapshot?> getUser(String userId) async {
-    final doc = await _firestore
-        .collection(FirebaseKeys.usersCollection)
-        .doc(userId)
-        .get();
-    if (doc.exists) {
-      return doc;
+  Future<void> updateData({
+    required String path,
+    required Map<String, dynamic> data,
+  }) {
+    final reference = _firestore.doc(path);
+    return reference.update(data);
+  }
+
+  Future<DocumentReference> addData({
+    required String collectionPath,
+    required Map<String, dynamic> data,
+  }) {
+    final reference = _firestore.collection(collectionPath);
+    return reference.add(data);
+  }
+
+  Future<void> deleteData({required String path}) {
+    final reference = _firestore.doc(path);
+    return reference.delete();
+  }
+
+  Future<DocumentSnapshot<Map<String, dynamic>>> getDocument({
+    required String path,
+  }) {
+    final reference = _firestore
+        .doc(path)
+        .withConverter<Map<String, dynamic>>(
+          fromFirestore: (snapshot, _) => snapshot.data()!,
+          toFirestore: (data, _) => data,
+        );
+    return reference.get();
+  }
+
+  Future<QuerySnapshot<Map<String, dynamic>>> getCollection({
+    required String path,
+    QueryBuilder? queryBuilder,
+  }) {
+    Query<Map<String, dynamic>> query = _firestore.collection(path);
+    if (queryBuilder != null) {
+      query = queryBuilder(query);
     }
-    return null;
+    return query.get();
   }
 
-  Future<void> deleteUser(String userId) async {
-    await _firestore
-        .collection(FirebaseKeys.usersCollection)
-        .doc(userId)
-        .delete();
-  }
-
-  Stream<QuerySnapshot<Map<String, dynamic>>> getUserChats(String uid) {
-    return _firestore
-        .collection(FirebaseKeys.chatsCollection)
-        .where(FirebaseKeys.members, arrayContains: uid)
-        .orderBy(FirebaseKeys.lastActive, descending: true)
-        .snapshots();
-  }
-
-  Future<void> updateDataInUser(
-    String userId,
-    Map<String, dynamic> data,
-  ) async {
-    await _firestore
-        .collection(FirebaseKeys.usersCollection)
-        .doc(userId)
-        .update(data);
-  }
-
-  Future<void> updateDataInChat(
-    String chatId,
-    Map<String, dynamic> data,
-  ) async {
-    await _firestore
-        .collection(FirebaseKeys.chatsCollection)
-        .doc(chatId)
-        .update(data);
-  }
-
-  //################################ Messages Pagination #########################################
-
-  Future<QuerySnapshot<Map<String, dynamic>>> getMessagesPage(
-    String chatId, {
-    int limit = 25,
-    // we need it, to use it as a bookmark to where to start getting the messages
-    DocumentSnapshot? lastMessageDoc,
-  }) async {
-    // Start building the query to get messages in reverse chronological order
-    Query<Map<String, dynamic>> query = _firestore
-        .collection(FirebaseKeys.chatsCollection)
-        .doc(chatId)
-        .collection(FirebaseKeys.messagesCollection)
-        .orderBy(FirebaseKeys.timeSent, descending: true);
-
-    // If we have a reference to the last document, start the new query after it
-    // (if lastMessage == null, then this is the first time to fetch data, so fetch the most recent ones)
-    if (lastMessageDoc != null) {
-      query = query.startAfterDocument(lastMessageDoc);
+  Stream<QuerySnapshot<Map<String, dynamic>>> getCollectionStream({
+    required String path,
+    QueryBuilder? queryBuilder,
+  }) {
+    Query<Map<String, dynamic>> query = _firestore.collection(path);
+    if (queryBuilder != null) {
+      query = queryBuilder(query);
     }
-
-    // Return the limited number of documents
-    return await query.limit(limit).get();
+    return query.snapshots();
   }
 
-  // return a stream of the latest messages
-  Stream<QuerySnapshot<Map<String, dynamic>>> getNewMessagesStream(
-    String chatId,
-    Timestamp lastVisibleMessageTimestamp,
-  ) {
-    return _firestore
-        .collection(FirebaseKeys.chatsCollection)
-        .doc(chatId)
-        .collection(FirebaseKeys.messagesCollection)
-        .orderBy(FirebaseKeys.timeSent, descending: false)
-        // Fetch any message sent after the last one we've seen
-        .where(
-          FirebaseKeys.timeSent,
-          isGreaterThan: lastVisibleMessageTimestamp,
-        )
-        .snapshots();
-  }
-
-  //################################ Messages Pagination #########################################
-
-  Future<void> sendMessage(
-    String chatId,
-    Map<String, dynamic> messageData,
-  ) async {
-    await _firestore
-        .collection(FirebaseKeys.chatsCollection)
-        .doc(chatId)
-        .collection(FirebaseKeys.messagesCollection)
-        .add(messageData);
-  }
-
-  // Do multiple writes at the same time
-  Future<void> sendChatMessageWithBatch(
-    String chatId,
-    Map<String, dynamic> messageData,
-  ) async {
-    final chatRef = _firestore
-        .collection(FirebaseKeys.chatsCollection)
-        .doc(chatId);
-    final newMessageRef = chatRef
-        .collection(FirebaseKeys.messagesCollection)
-        .doc();
-
+  /// Runs multiple write operations as a single atomic unit.
+  Future<void> runBatch(BatchBuilder batchBuilder) {
     final WriteBatch batch = _firestore.batch();
-
-    // Operation 1: Set the new message
-    batch.set(newMessageRef, messageData);
-
-    // Operation 2: Update the parent chat document
-    batch.update(chatRef, {
-      FirebaseKeys.lastMessageContent: messageData[FirebaseKeys.content],
-      FirebaseKeys.lastMessageType: messageData[FirebaseKeys.type],
-      FirebaseKeys.lastActive:
-          messageData[FirebaseKeys.timeSent], // Also update timestamp
-    });
-
-    // Commit both operations at once
-    await batch.commit();
+    // MODIFIED: We now pass the service's firestore instance to the builder.
+    batchBuilder(batch, _firestore);
+    return batch.commit();
   }
 }
