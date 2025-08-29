@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:message_me/core/extensions/navigation_extensions.dart';
-import 'package:message_me/core/helpers/my_logger.dart';
 import 'package:message_me/core/routing/routes.dart';
 import 'package:message_me/core/widgets/my_snackbar.dart';
 import 'package:message_me/core/utils/app_colors.dart';

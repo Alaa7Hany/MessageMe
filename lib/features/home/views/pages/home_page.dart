@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:message_me/core/extensions/navigation_extensions.dart';
-import 'package:message_me/core/helpers/my_logger.dart';
 import 'package:message_me/core/routing/routes.dart';
 import 'package:message_me/core/utils/app_assets.dart';
 import 'package:message_me/core/utils/app_colors.dart';
@@ -12,7 +11,9 @@ import 'package:message_me/features/home/views/pages/setting_page.dart';
 import '../../../../core/services/dependency_injection_service.dart';
 import '../../../auth/logic/auth_cubit/auth_state.dart';
 import '../../data/repo/chats_repo.dart';
+import '../../data/repo/find_users_repo.dart';
 import '../../logic/chats_cubit/chats_cubit.dart';
+import '../../logic/find_users_cubit/find_users_cubit.dart';
 import 'chats_page.dart';
 import 'find_users_page.dart';
 
@@ -25,7 +26,11 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   int _currentPage = 0;
-  final List<Widget> _pages = const [ChatsPage(), UsersPage(), SettingPage()];
+  final List<Widget> _pages = const [
+    ChatsPage(),
+    FindUsersPage(),
+    SettingPage(),
+  ];
 
   @override
   void initState() {
@@ -52,9 +57,14 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         BlocProvider<ChatsCubit>(
           create: (context) => ChatsCubit(getIt<ChatsRepo>())..loadChats(),
         ),
+        BlocProvider(
+          create: (context) =>
+              FindUsersCubit(getIt<FindUsersRepo>())..loadInitialUsersPage(),
+        ),
       ],
       child: Scaffold(
         appBar: buildAppBar(context),
+
         bottomNavigationBar: BottomNavigationBar(
           currentIndex: _currentPage,
           onTap: (value) {

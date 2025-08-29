@@ -8,7 +8,7 @@ import 'package:message_me/core/helpers/text_field_validator.dart';
 import 'package:message_me/core/widgets/loading_screen_overlay.dart';
 
 import 'package:message_me/features/auth/logic/auth_cubit/auth_cubit.dart';
-import 'package:message_me/features/auth/views/widgets/auth_button.dart';
+import 'package:message_me/core/widgets/auth_button.dart';
 import 'package:message_me/core/widgets/rounded_image.dart';
 
 import '../../../../core/routing/routes.dart';
@@ -102,7 +102,7 @@ class _SignupPageState extends State<SignupPage> {
                   SizedBox(height: 30.h),
                   _signupForm(),
                   SizedBox(height: 30.h),
-                  AuthButton(
+                  MyElevatedButton(
                     label: 'Signup',
                     onPressed: () {
                       if (_formKey.currentState!.validate()) {

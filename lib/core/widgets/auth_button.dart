@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-import '../../../../core/utils/app_colors.dart';
-import '../../../../core/utils/app_text_styles.dart';
+import '../utils/app_colors.dart';
+import '../utils/app_text_styles.dart';
 
-class AuthButton extends StatelessWidget {
+class MyElevatedButton extends StatelessWidget {
   final String label;
   final void Function()? onPressed;
-  const AuthButton({super.key, required this.label, this.onPressed});
+  const MyElevatedButton({super.key, required this.label, this.onPressed});
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +23,12 @@ class AuthButton extends StatelessWidget {
           ),
           padding: EdgeInsets.symmetric(vertical: 15.h),
         ),
-        child: Text(label, style: AppTextStyles.f16w500primary()),
+        child: Text(
+          label,
+          style: AppTextStyles.f16w500primary(),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
       ),
     );
   }
