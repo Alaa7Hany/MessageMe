@@ -15,8 +15,10 @@ class RoundedImageNetwork extends StatelessWidget {
   Widget build(BuildContext context) {
     return CircleAvatar(
       radius: radius.r,
-      backgroundImage: imageUrl != null ? NetworkImage(imageUrl!) : null,
-      child: imageUrl == null
+      backgroundImage: (imageUrl != null && imageUrl != '')
+          ? NetworkImage(imageUrl!)
+          : null,
+      child: (imageUrl == null || imageUrl == '')
           ? Icon(Icons.person, color: AppColors.accentColor, size: radius.r)
           : null,
     );

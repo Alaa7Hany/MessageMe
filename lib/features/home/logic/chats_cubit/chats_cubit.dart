@@ -39,7 +39,7 @@ class ChatsCubit extends Cubit<ChatsState> {
           .listen(
             (chats) {
               emit(ChatsLoaded(chats));
-              MyLogger.green('Loaded Chats: ${chats.length}');
+              // MyLogger.green('Loaded Chats: ${chats.length}');
             },
             onError: (error) {
               emit(ChatsError('Failed to load chats'));
@@ -47,8 +47,8 @@ class ChatsCubit extends Cubit<ChatsState> {
             },
           );
     } catch (e) {
-      emit(ChatsError('Failed to load chats'));
       MyLogger.red('Error loading Chats: $e');
+      emit(ChatsError('Failed to load chats'));
     }
   }
 }

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:message_me/core/extensions/navigation_extensions.dart';
-import 'package:message_me/core/helpers/my_logger.dart';
 import 'package:message_me/core/routing/routes.dart';
 import 'package:message_me/core/utils/app_assets.dart';
 import 'package:message_me/core/utils/app_colors.dart';
@@ -12,9 +11,11 @@ import 'package:message_me/features/home/views/pages/setting_page.dart';
 import '../../../../core/services/dependency_injection_service.dart';
 import '../../../auth/logic/auth_cubit/auth_state.dart';
 import '../../data/repo/chats_repo.dart';
+import '../../data/repo/find_users_repo.dart';
 import '../../logic/chats_cubit/chats_cubit.dart';
+import '../../logic/find_users_cubit/find_users_cubit.dart';
 import 'chats_page.dart';
-import 'users_page.dart';
+import 'find_users_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -25,7 +26,11 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   int _currentPage = 0;
-  final List<Widget> _pages = const [ChatsPage(), UsersPage(), SettingPage()];
+  final List<Widget> _pages = const [
+    ChatsPage(),
+    FindUsersPage(),
+    SettingPage(),
+  ];
 
   @override
   void initState() {
@@ -41,7 +46,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   void dispose() {
     // Stop listening to prevent memory leaks
     WidgetsBinding.instance.removeObserver(this);
-    context.read<AuthCubit>().updateUserStatus(false);
     super.dispose();
   }
 
@@ -53,9 +57,13 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         BlocProvider<ChatsCubit>(
           create: (context) => ChatsCubit(getIt<ChatsRepo>())..loadChats(),
         ),
+        BlocProvider(
+          create: (context) => FindUsersCubit(getIt<FindUsersRepo>()),
+        ),
       ],
       child: Scaffold(
-        appBar: buildAppBar(context),
+        appBar: _buildAppBar(context),
+
         bottomNavigationBar: BottomNavigationBar(
           currentIndex: _currentPage,
           onTap: (value) {
@@ -83,20 +91,27 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     );
   }
 
-  AppBar buildAppBar(BuildContext context) {
+  AppBar _buildAppBar(BuildContext context) {
     return AppBar(
-      title: Image.asset(AppAssets.logoWithText, scale: 7.h),
+      title: Image.asset(AppAssets.logoWithText, height: 120.h, width: 140.w),
       centerTitle: false,
       automaticallyImplyLeading: false,
       actions: [
         BlocListener<AuthCubit, AuthState>(
           listener: (context, state) {
             if (state is AuthLoggedOut) {
-              context.pushReplacementNamed(Routes.login);
+              Navigator.of(context).pushNamedAndRemoveUntil(
+                Routes.login,
+                (Route<dynamic> route) => false,
+              );
             }
           },
           child: IconButton(
-            icon: const Icon(Icons.logout, color: AppColors.primaryTextColor),
+            icon: Icon(
+              Icons.logout,
+              color: AppColors.primaryTextColor,
+              size: 35.h,
+            ),
             onPressed: () {
               AuthCubit.get(context).logout();
             },

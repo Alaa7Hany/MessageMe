@@ -12,9 +12,7 @@ MessageModel _$MessageModelFromJson(Map<String, dynamic> json) => MessageModel(
   senderImage: json['sender_image'] as String,
   content: json['content'] as String,
   type: json['type'] as String,
-  timeSent: const TimestampToDateTimeConverter().fromJson(
-    json['time_sent'] as Timestamp,
-  ),
+  timeSent: const TimestampToDateTimeConverter().fromJson(json['time_sent']),
 );
 
 Map<String, dynamic> _$MessageModelToJson(

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:message_me/core/extensions/navigation_extensions.dart';
-import 'package:message_me/core/helpers/my_logger.dart';
 import 'package:message_me/core/routing/routes.dart';
 import 'package:message_me/core/widgets/my_snackbar.dart';
 import 'package:message_me/core/utils/app_colors.dart';
@@ -30,18 +29,28 @@ class ChatsPage extends StatelessWidget {
             return Padding(
               padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 10.h),
               child: state is ChatsLoaded
-                  ? ListView.builder(
-                      itemCount: state.chats.length,
-                      itemBuilder: (context, index) {
-                        return InkWell(
-                          onTap: () => context.pushNamed(
-                            Routes.messages,
-                            arguments: state.chats[index],
-                          ),
-                          child: ChatListtile(chatModel: state.chats[index]),
-                        );
-                      },
-                    )
+                  ? state.chats.isNotEmpty
+                        ? ListView.builder(
+                            itemCount: state.chats.length,
+                            itemBuilder: (context, index) {
+                              return InkWell(
+                                onTap: () => context.pushNamed(
+                                  Routes.messages,
+                                  arguments: state.chats[index],
+                                ),
+                                child: ChatListtile(
+                                  chatModel: state.chats[index],
+                                ),
+                              );
+                            },
+                          )
+                        : Center(
+                            child: Text(
+                              'No Messages Yet!🤔\nsearch for your friends in the Users tab 👉',
+                              style: AppTextStyles.f24w700primary(),
+                              textAlign: TextAlign.center,
+                            ),
+                          )
                   : state is ChatsError
                   ? Center(
                       child: Text(

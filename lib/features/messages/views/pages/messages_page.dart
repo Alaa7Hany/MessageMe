@@ -37,7 +37,7 @@ class MessagesPage extends StatelessWidget {
             builder: (context, state) {
               return Scaffold(
                 appBar: _buildAppBar(context),
-                body: _buildUi(context, state, currentId),
+                body: SafeArea(child: _buildUi(context, state, currentId)),
               );
             },
           );
@@ -121,10 +121,13 @@ class MessagesPage extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          RoundedImageNetwork(
-            radius: 20,
-            imageUrl: chatModel.getChatImageUrl(currentId),
-          ),
+          chatModel.getChatImageUrl(currentId) != null &&
+                  chatModel.getChatImageUrl(currentId) != ''
+              ? RoundedImageNetwork(
+                  radius: 25,
+                  imageUrl: chatModel.getChatImageUrl(currentId)!,
+                )
+              : RoundedImageFile(radius: 25, isGroup: chatModel.isGroup),
           SizedBox(width: 8.0.w),
           Text(
             chatModel.getChatTitle(currentId),

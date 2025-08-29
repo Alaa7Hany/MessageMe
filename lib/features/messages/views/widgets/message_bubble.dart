@@ -62,11 +62,23 @@ class MessageBubble extends StatelessWidget {
           message.type == 'text'
               ? Text(
                   message.content,
-                  style: AppTextStyles.f14w400primary().copyWith(
+                  style: AppTextStyles.f16w400primary().copyWith(
                     color: textColor,
                   ),
                 )
-              : Image.network(message.content, fit: BoxFit.cover),
+              : Container(
+                  constraints: BoxConstraints(
+                    maxHeight: 300.h,
+                    maxWidth: 200.w,
+                  ),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(12.r),
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(12.r),
+                    child: Image.network(message.content, fit: BoxFit.cover),
+                  ),
+                ),
           SizedBox(height: 5.h),
           Align(
             alignment: Alignment.centerRight,

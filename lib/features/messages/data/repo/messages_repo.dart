@@ -17,14 +17,28 @@ class MessagesRepo {
 
   MessagesRepo(this._database, this._mediaService, this._storageService);
 
+  // ... (getMessagesPage and getNewMessagesStream are unchanged) ...
   Future<List<MessageModel>> getMessagesPage(
     String chatId, {
+    int limit = 25,
     DocumentSnapshot? lastDoc,
   }) async {
     try {
-      final snapshot = await _database.getMessagesPage(
-        chatId,
-        lastMessageDoc: lastDoc,
+      final String path =
+          '${FirebaseKeys.chatsCollection}/$chatId/${FirebaseKeys.messagesCollection}';
+
+      final snapshot = await _database.getCollection(
+        path: path,
+        queryBuilder: (query) {
+          var configuredQuery = query.orderBy(
+            FirebaseKeys.timeSent,
+            descending: true,
+          );
+          if (lastDoc != null) {
+            configuredQuery = configuredQuery.startAfterDocument(lastDoc);
+          }
+          return configuredQuery.limit(limit);
+        },
       );
       return snapshot.docs
           .map((doc) => MessageModel.fromSnapshot(doc))
@@ -40,15 +54,56 @@ class MessagesRepo {
     DateTime lastVisible,
   ) {
     try {
-      // Convert DateTime to Firestore Timestamp for the query
+      final String path =
+          '${FirebaseKeys.chatsCollection}/$chatId/${FirebaseKeys.messagesCollection}';
       final timestamp = Timestamp.fromDate(lastVisible);
-      return _database.getNewMessagesStream(chatId, timestamp).map((snapshot) {
-        return snapshot.docs
-            .map((doc) => MessageModel.fromSnapshot(doc))
-            .toList();
-      });
+
+      return _database
+          .getCollectionStream(
+            path: path,
+            queryBuilder: (query) => query
+                .orderBy(FirebaseKeys.timeSent, descending: false)
+                .where(FirebaseKeys.timeSent, isGreaterThan: timestamp),
+          )
+          .map((snapshot) {
+            return snapshot.docs
+                .map((doc) => MessageModel.fromSnapshot(doc))
+                .toList();
+          });
     } catch (e) {
       MyLogger.red('Error getting new messages stream: $e');
+      rethrow;
+    }
+  }
+
+  /// Sends a message and updates the parent chat document atomically using a batch write.
+  Future<void> sendMessage(String chatId, MessageModel message) async {
+    try {
+      await _database.runBatch((batch, firestore) {
+        // Reference to the parent chat document
+        final chatRef = firestore.doc(
+          '${FirebaseKeys.chatsCollection}/$chatId',
+        );
+
+        // Reference for the new message document in the subcollection
+        final newMessageRef = chatRef
+            .collection(FirebaseKeys.messagesCollection)
+            .doc();
+
+        final messageData = message.toJson();
+
+        // Operation 1: Set the new message data
+        batch.set(newMessageRef, messageData);
+
+        // Operation 2: Update the parent chat document with the latest message info
+        batch.update(chatRef, {
+          FirebaseKeys.lastMessageContent: message.content,
+          FirebaseKeys.lastMessageType: message.type,
+          FirebaseKeys.lastActive: message.timeSent,
+        });
+      });
+    } catch (e) {
+      MyLogger.red('Error sending message in MessagesRepo: $e');
       rethrow;
     }
   }
@@ -74,15 +129,6 @@ class MessagesRepo {
       );
       return imageUrl;
     } catch (e) {
-      rethrow;
-    }
-  }
-
-  Future<void> sendMessage(String chatId, MessageModel message) async {
-    try {
-      await _database.sendChatMessageWithBatch(chatId, message.toJson());
-    } catch (e) {
-      MyLogger.red('Error sending message in MessagesRepo: $e');
       rethrow;
     }
   }

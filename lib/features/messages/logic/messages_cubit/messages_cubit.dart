@@ -15,6 +15,12 @@ import '../../data/repo/messages_repo.dart';
 import 'messages_state.dart';
 
 class MessagesCubit extends Cubit<MessagesState> {
+  // Pagination Guide
+  // 1. load initial messages and store them in list _messages
+  // 2. put a bookmark on the last message loaded
+  // 3. load more messages when scrolling to the top
+  // 4. listen for new messages and add them to the _messages list
+
   // --- State for Pagination ---
   final List<MessageModel> _messages = [];
   DocumentSnapshot? _lastMessageDoc;
@@ -60,31 +66,27 @@ class MessagesCubit extends Cubit<MessagesState> {
     try {
       final messagesPage = await _messagesRepo.getMessagesPage(chatModel.uid);
       if (messagesPage.isNotEmpty) {
-        _lastMessageDoc = messagesPage
-            .last
-            .rawDoc; // Assuming your model can hold the raw doc
+        // saving the last Message received as a bookmark
+        _lastMessageDoc = messagesPage.last.rawDoc;
         _messages.addAll(messagesPage);
-        _listenForNewMessages(); // Start listening for new messages ONLY after the first page is loaded
+      } // Start listening for new messages
+      _listenForNewMessages();
+
+      if (messagesPage.length < 25) {
+        _hasMoreMessages = false;
       }
-      emit(
-        MessagesLoaded(
-          _messages,
-          hasMore: _hasMoreMessages,
-          isLoadingMore: false,
-        ),
-      );
+      emit(MessagesLoaded(_messages, hasMore: _hasMoreMessages));
     } catch (e) {
+      MyLogger.red('Error loading initial messages: $e');
       emit(MessagesError(e.toString()));
     }
   }
 
-  void loadMoreMessages() async {
+  void _loadMoreMessages() async {
     if (_isLoadingMore || !_hasMoreMessages) return;
 
     _isLoadingMore = true;
-    emit(
-      MessagesLoaded(_messages, hasMore: _hasMoreMessages, isLoadingMore: true),
-    );
+    emit(MessagesLoaded(_messages, hasMore: _hasMoreMessages));
 
     try {
       final messagesPage = await _messagesRepo.getMessagesPage(
@@ -99,42 +101,45 @@ class MessagesCubit extends Cubit<MessagesState> {
         _messages.addAll(messagesPage);
       }
       _isLoadingMore = false;
-      emit(
-        MessagesLoaded(
-          _messages,
-          hasMore: _hasMoreMessages,
-          isLoadingMore: false,
-        ),
-      );
+      emit(MessagesLoaded(_messages, hasMore: _hasMoreMessages));
     } catch (e) {
       // Handle error, maybe emit an error state
       _isLoadingMore = false;
-      emit(
-        MessagesLoaded(
-          _messages,
-          hasMore: _hasMoreMessages,
-          isLoadingMore: false,
-        ),
-      );
+      emit(MessagesLoaded(_messages, hasMore: _hasMoreMessages));
     }
   }
 
   void _listenForNewMessages() {
-    _messagesSubscription?.cancel();
-    _messagesSubscription = _messagesRepo
-        .getNewMessagesStream(chatModel.uid, _messages.first.timeSent)
-        .listen((newMessages) {
-          // Add new messages to the beginning of the list (since it's reversed in UI)
-          _messages.insertAll(0, newMessages);
-          emit(
-            MessagesLoaded(
-              _messages,
-              hasMore: _hasMoreMessages,
-              isLoadingMore: false,
-            ),
+    try {
+      // If we have messages, start after the newest one.
+      // If the chat is empty, start from the current time.
+      final startTime = _messages.isNotEmpty
+          ? _messages.first.timeSent
+          : DateTime.now();
+
+      _messagesSubscription?.cancel();
+      _messagesSubscription = _messagesRepo
+          .getNewMessagesStream(chatModel.uid, startTime)
+          .listen(
+            (newMessages) {
+              // in the beginning of the stream, there are no messages
+              if (newMessages.isEmpty) return;
+              // Add new messages to the beginning of the list (since it's reversed in UI)
+              _messages.insert(0, newMessages.last);
+              MyLogger.yellow(
+                'New message received: ${newMessages.last.content}',
+              );
+              emit(MessagesLoaded(_messages, hasMore: _hasMoreMessages));
+
+              scrollToBottom();
+            },
+            onError: (error) {
+              MyLogger.red('Error listening for new messages: $error');
+            },
           );
-          scrollToBottom();
-        });
+    } catch (e) {
+      MyLogger.red('Error initiating Stream $e');
+    }
   }
 
   void _setupScrollListener() {
@@ -142,7 +147,7 @@ class MessagesCubit extends Cubit<MessagesState> {
       // If the user scrolls to the very top of the list
       if (messagesListViewController.position.pixels ==
           messagesListViewController.position.maxScrollExtent) {
-        loadMoreMessages();
+        _loadMoreMessages();
       }
     });
   }

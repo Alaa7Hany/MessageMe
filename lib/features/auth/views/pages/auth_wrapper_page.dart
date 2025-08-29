@@ -16,10 +16,16 @@ class AuthWrapper extends StatelessWidget {
       listener: (context, state) {
         if (state is AuthLoginSuccess) {
           // User is logged in, go to home
-          context.pushReplacementNamed(Routes.home);
+          Navigator.of(context).pushNamedAndRemoveUntil(
+            Routes.home,
+            (Route<dynamic> route) => false,
+          );
         } else if (state is AuthInitial || state is AuthLoggedOut) {
           // User is logged out, go to login
-          context.pushReplacementNamed(Routes.login);
+          Navigator.of(context).pushNamedAndRemoveUntil(
+            Routes.login,
+            (Route<dynamic> route) => false,
+          );
         }
       },
       // While we wait for a state, just show a loading indicator

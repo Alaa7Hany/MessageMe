@@ -19,7 +19,7 @@ extension ChatModelPresenter on ChatModel {
 
   /// Gets the subtitle, which is the content of the last message.
   String get subtitle {
-    if (lastMessageContent != null) {
+    if (lastMessageContent != null && lastMessageContent!.isNotEmpty) {
       return lastMessageType == 'text' ? lastMessageContent! : 'Media message';
     }
     return 'No messages yet';
@@ -27,18 +27,29 @@ extension ChatModelPresenter on ChatModel {
 
   /// Gets the appropriate image URL for the chat.
   String? getChatImageUrl(String currentUserId) {
-    if (imageUrl != null) {
-      return imageUrl;
+    // 1. Handle group chats first.
+    if (isGroup) {
+      // If the group has a custom image, always prioritize it.
+      if (imageUrl != null && imageUrl!.isNotEmpty) {
+        return imageUrl;
+      }
+      // Fallback for a group chat without a custom image (e.g., show first member's avatar).
+      return null;
     }
-    if (!isGroup && membersModels.length > 1) {
-      // This is now explicit and easier to understand
-      final otherUser = membersModels.firstWhere(
-        (m) => m.uid != currentUserId,
-        orElse: () => membersModels.first, // Fallback is still good to have
-      );
-      return otherUser.imageUrl;
+
+    // 2. Handle 1-on-1 chats. Assumes `membersModels` has two users.
+    if (membersModels.length == 2) {
+      // Directly find the other user without iterating.
+      // If the first user in the list is the current user, return the second's image.
+      if (membersModels[0].uid == currentUserId) {
+        return membersModels[1].imageUrl;
+      }
+      // Otherwise, the other user must be the first one in the list.
+      return membersModels[0].imageUrl;
     }
-    return membersModels.isNotEmpty ? membersModels.first.imageUrl : null;
+
+    // 3. A final fallback for any unexpected edge cases.
+    return null;
   }
 
   /// Formats the last active time into a relative string like "5m ago".
@@ -46,7 +57,7 @@ extension ChatModelPresenter on ChatModel {
     final now = DateTime.now();
     final difference = now.difference(lastActive);
 
-    if (lastMessageContent == null) {
+    if (lastMessageContent == null || lastMessageContent!.isEmpty) {
       return '';
     }
 
