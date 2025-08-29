@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:message_me/core/models/user_model.dart';
@@ -24,6 +23,51 @@ class AuthRepo {
     this._storageService,
     this._mediaService,
   );
+
+  /// Fetches a user's profile from Firestore.
+  Future<UserModel?> getUser(String userId) async {
+    try {
+      final doc = await _databaseService.getDocument(
+        path: '${FirebaseKeys.usersCollection}/$userId',
+      );
+
+      if (doc.exists) {
+        Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+        return UserModel.fromJson(data);
+      }
+    } catch (e) {
+      rethrow;
+    }
+    return null;
+  }
+
+  /// Creates a user document in the database with a specific UID.
+  Future<String> createUser(String uid, UserModel userModel) async {
+    try {
+      await _databaseService.setData(
+        path: '${FirebaseKeys.usersCollection}/$uid',
+        data: userModel.toJson(),
+      );
+      return uid;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  /// Updates a user's online status and last active time.
+  Future<void> updateUserStatus(String uid, bool isOnline) async {
+    try {
+      await _databaseService.updateData(
+        path: '${FirebaseKeys.usersCollection}/$uid',
+        data: {
+          FirebaseKeys.isOnline: isOnline,
+          FirebaseKeys.lastActive: DateTime.now().toUtc(),
+        },
+      );
+    } catch (e) {
+      rethrow;
+    }
+  }
 
   void setupAuthStateListener(void Function(User?) onAuthStateChanged) {
     _authService.setupAuthStateListener(onAuthStateChanged);
@@ -52,28 +96,6 @@ class AuthRepo {
     await _authService.signOut();
   }
 
-  Future<UserModel?> getUser(String userId) async {
-    try {
-      final doc = await _databaseService.getUser(userId);
-      if (doc != null) {
-        Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-        return UserModel.fromJson(data);
-      }
-    } catch (e) {
-      rethrow;
-    }
-    return null;
-  }
-
-  Future<String> createUser(String uid, UserModel userModel) async {
-    try {
-      await _databaseService.addUser(uid, userModel.toJson());
-      return uid;
-    } catch (e) {
-      rethrow;
-    }
-  }
-
   Future<String?> uploadUserImage(String uid, PlatformFile file) async {
     try {
       final String? imageUrl = await _storageService.uploadUserImage(
@@ -95,17 +117,6 @@ class AuthRepo {
       } else {
         throw Exception('No image selected');
       }
-    } catch (e) {
-      rethrow;
-    }
-  }
-
-  Future<void> updateUserStatus(String uid, bool isOnline) async {
-    try {
-      await _databaseService.updateDataInUser(uid, {
-        FirebaseKeys.isOnline: isOnline,
-        FirebaseKeys.lastActive: DateTime.now().toUtc(),
-      });
     } catch (e) {
       rethrow;
     }
