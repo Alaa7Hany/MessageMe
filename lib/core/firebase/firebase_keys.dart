@@ -8,6 +8,7 @@ class FirebaseKeys {
 
   // Images Pathes
   static const String usersImagesPath = 'images/users_images';
+  static const String chatsImagesPath = 'images/chats_images';
 
   // User Model Keys
   static const String uid = 'uid';
@@ -20,7 +21,8 @@ class FirebaseKeys {
   // Chat Model Keys
   static const String isGroup = 'is_group';
   static const String members = 'members';
-  static const String lastMessage = 'last_message';
+  static const String lastMessageContent = 'last_message_content';
+  static const String lastMessageType = 'last_message_type';
   static const String createdAt = 'created_at';
 
   // Message Model Keys

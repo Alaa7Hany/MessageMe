@@ -11,9 +11,6 @@ ChatModel _$ChatModelFromJson(Map<String, dynamic> json) => ChatModel(
   membersIds: (json['members'] as List<dynamic>)
       .map((e) => e as String)
       .toList(),
-  lastMessage: json['last_message'] == null
-      ? null
-      : MessageModel.fromJson(json['last_message'] as Map<String, dynamic>),
   createdAt: const TimestampToDateTimeConverter().fromJson(
     json['created_at'] as Timestamp,
   ),
@@ -21,12 +18,15 @@ ChatModel _$ChatModelFromJson(Map<String, dynamic> json) => ChatModel(
     json['last_active'] as Timestamp,
   ),
   imageUrl: json['image_url'] as String?,
+  lastMessageContent: json['last_message_content'] as String?,
+  lastMessageType: json['last_message_type'] as String?,
 );
 
 Map<String, dynamic> _$ChatModelToJson(ChatModel instance) => <String, dynamic>{
   'is_group': instance.isGroup,
   'members': instance.membersIds,
-  'last_message': instance.lastMessage,
+  'last_message_content': instance.lastMessageContent,
+  'last_message_type': instance.lastMessageType,
   'image_url': instance.imageUrl,
   'created_at': const TimestampToDateTimeConverter().toJson(instance.createdAt),
   'last_active': const TimestampToDateTimeConverter().toJson(

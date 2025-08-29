@@ -22,8 +22,11 @@ class ChatModel {
   @JsonKey(includeFromJson: false, includeToJson: false)
   List<UserModel> membersModels;
 
-  @JsonKey(name: FirebaseKeys.lastMessage)
-  final MessageModel? lastMessage;
+  @JsonKey(name: FirebaseKeys.lastMessageContent)
+  final String? lastMessageContent;
+
+  @JsonKey(name: FirebaseKeys.lastMessageType)
+  final String? lastMessageType;
 
   @JsonKey(name: FirebaseKeys.imageUrl)
   final String? imageUrl;
@@ -40,11 +43,12 @@ class ChatModel {
     this.uid = '',
     required this.isGroup,
     required this.membersIds,
-    this.lastMessage,
     required this.createdAt,
     required this.lastActive,
     this.imageUrl,
     this.membersModels = const [],
+    this.lastMessageContent,
+    this.lastMessageType,
   });
 
   factory ChatModel.fromJson(Map<String, dynamic> json) =>

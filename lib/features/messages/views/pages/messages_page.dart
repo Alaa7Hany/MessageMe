@@ -23,11 +23,13 @@ class MessagesPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final String currentId = AuthCubit.get(context).currentUser!.uid;
     return BlocProvider(
-      create: (context) => MessagesCubit(getIt(), chatModel)..loadMessages(),
+      create: (context) => MessagesCubit(getIt(), chatModel),
       child: Builder(
         builder: (context) {
           return BlocConsumer<MessagesCubit, MessagesState>(
             listener: (context, state) {
+              // Always scroll to the bottom, when a new message arrives
+              // context.read<MessagesCubit>().scrollToBottom();
               if (state is MessagesError) {
                 MySnackbar.error(context, state.message);
               }
@@ -45,6 +47,7 @@ class MessagesPage extends StatelessWidget {
   }
 
   Widget _buildUi(BuildContext context, MessagesState state, String currentId) {
+    final MessagesCubit cubit = MessagesCubit.get(context);
     if (state is MessagesLoaded) {
       return Padding(
         padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 6.0),
@@ -53,8 +56,24 @@ class MessagesPage extends StatelessWidget {
             Expanded(
               child: state.messages.isNotEmpty
                   ? ListView.builder(
-                      itemCount: state.messages.length,
+                      controller: cubit.messagesListViewController,
+                      reverse:
+                          true, // Add 1 to the item count for the loading indicator at the top
+
+                      itemCount:
+                          state.messages.length + (state.hasMore ? 1 : 0),
                       itemBuilder: (context, index) {
+                        // If it's the last item and we have more to load, show a spinner
+                        if (index >= state.messages.length) {
+                          return const Center(
+                            child: Padding(
+                              padding: EdgeInsets.all(8.0),
+                              child: CircularProgressIndicator(
+                                color: AppColors.accentColor,
+                              ),
+                            ),
+                          );
+                        }
                         final message = state.messages[index];
                         return MessageBubble(
                           message: message,
@@ -70,7 +89,15 @@ class MessagesPage extends StatelessWidget {
                       ),
                     ),
             ),
-            SendMessageField(),
+            SendMessageField(
+              controller: cubit.messageController,
+              onSendText: () {
+                cubit.sendTextMessage();
+              },
+              onSendImage: () {
+                cubit.sendImage();
+              },
+            ),
           ],
         ),
       );
