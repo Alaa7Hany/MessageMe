@@ -9,7 +9,7 @@ import 'package:message_me/core/widgets/loading_screen_overlay.dart';
 
 import 'package:message_me/features/auth/logic/auth_cubit/auth_cubit.dart';
 import 'package:message_me/features/auth/views/widgets/auth_button.dart';
-import 'package:message_me/features/auth/views/widgets/rounded_image.dart';
+import 'package:message_me/core/widgets/rounded_image.dart';
 
 import '../../../../core/routing/routes.dart';
 import '../../../../core/widgets/my_textform_field.dart';

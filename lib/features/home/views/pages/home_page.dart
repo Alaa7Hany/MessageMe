@@ -41,30 +41,13 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   void dispose() {
     // Stop listening to prevent memory leaks
     WidgetsBinding.instance.removeObserver(this);
+    context.read<AuthCubit>().updateUserStatus(false);
     super.dispose();
-  }
-
-  //  Add the core lifecycle method
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    super.didChangeAppLifecycleState(state);
-
-    // Get a reference to the cubit
-    final authCubit = context.read<AuthCubit>();
-
-    // Update status based on app state
-    if (state == AppLifecycleState.resumed) {
-      // App is in the foreground
-      authCubit.updateUserStatus(true);
-    } else {
-      // App is in the background (paused, inactive, etc.)
-      authCubit.updateUserStatus(false);
-    }
   }
 
   @override
   Widget build(BuildContext context) {
-    MyLogger.bgMagenta('HomePage, Building HomePage');
+    // MyLogger.bgMagenta('HomePage, Building HomePage');
     return MultiBlocProvider(
       providers: [
         BlocProvider<ChatsCubit>(

@@ -74,9 +74,9 @@ class AuthRepo {
     }
   }
 
-  Future<String> uploadUserImage(String uid, PlatformFile file) async {
+  Future<String?> uploadUserImage(String uid, PlatformFile file) async {
     try {
-      final String imageUrl = await _storageService.uploadUserImage(
+      final String? imageUrl = await _storageService.uploadUserImage(
         uid,
         File(file.path!),
       );

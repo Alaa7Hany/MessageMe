@@ -19,10 +19,8 @@ extension ChatModelPresenter on ChatModel {
 
   /// Gets the subtitle, which is the content of the last message.
   String get subtitle {
-    if (lastMessage != null) {
-      return lastMessage!.type == 'text'
-          ? lastMessage!.content
-          : 'Media message';
+    if (lastMessageContent != null) {
+      return lastMessageType == 'text' ? lastMessageContent! : 'Media message';
     }
     return 'No messages yet';
   }
@@ -48,7 +46,7 @@ extension ChatModelPresenter on ChatModel {
     final now = DateTime.now();
     final difference = now.difference(lastActive);
 
-    if (lastMessage == null) {
+    if (lastMessageContent == null) {
       return '';
     }
 

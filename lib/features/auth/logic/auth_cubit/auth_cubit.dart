@@ -85,7 +85,7 @@ class AuthCubit extends Cubit<AuthState> {
         // upload image and get url if image is not null
         String imageUrl = '';
         if (imageFile != null) {
-          imageUrl = await _authRepo.uploadUserImage(uid, imageFile);
+          imageUrl = await _authRepo.uploadUserImage(uid, imageFile) ?? '';
         }
 
         // create UserModel
@@ -141,7 +141,7 @@ class AuthCubit extends Cubit<AuthState> {
     if (currentUser != null) {
       try {
         await _authRepo.updateUserStatus(currentUser!.uid, isOnline);
-        MyLogger.cyan("User is online");
+        MyLogger.cyan("User is now ${isOnline ? 'online' : 'offline'}");
       } catch (e) {
         MyLogger.red("Error updating online status: $e");
       }
