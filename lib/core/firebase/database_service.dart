@@ -106,16 +106,16 @@ class DatabaseService {
 
   //################################ Messages Pagination #########################################
 
-  // Future<void> sendMessage(
-  //   String chatId,
-  //   Map<String, dynamic> messageData,
-  // ) async {
-  //   await _firestore
-  //       .collection(FirebaseKeys.chatsCollection)
-  //       .doc(chatId)
-  //       .collection(FirebaseKeys.messagesCollection)
-  //       .add(messageData);
-  // }
+  Future<void> sendMessage(
+    String chatId,
+    Map<String, dynamic> messageData,
+  ) async {
+    await _firestore
+        .collection(FirebaseKeys.chatsCollection)
+        .doc(chatId)
+        .collection(FirebaseKeys.messagesCollection)
+        .add(messageData);
+  }
 
   // Do multiple writes at the same time
   Future<void> sendChatMessageWithBatch(

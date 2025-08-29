@@ -15,6 +15,12 @@ import '../../data/repo/messages_repo.dart';
 import 'messages_state.dart';
 
 class MessagesCubit extends Cubit<MessagesState> {
+  // Pagination Guide
+  // 1. load initial messages and store them in list _messages
+  // 2. put a bookmark on the last message loaded
+  // 3. load more messages when scrolling to the top
+  // 4. listen for new messages and add them to the _messages list
+
   // --- State for Pagination ---
   final List<MessageModel> _messages = [];
   DocumentSnapshot? _lastMessageDoc;
@@ -80,7 +86,7 @@ class MessagesCubit extends Cubit<MessagesState> {
     }
   }
 
-  void loadMoreMessages() async {
+  void _loadMoreMessages() async {
     if (_isLoadingMore || !_hasMoreMessages) return;
 
     _isLoadingMore = true;
@@ -126,8 +132,9 @@ class MessagesCubit extends Cubit<MessagesState> {
     _messagesSubscription = _messagesRepo
         .getNewMessagesStream(chatModel.uid, _messages.first.timeSent)
         .listen((newMessages) {
-          // Add new messages to the beginning of the list (since it's reversed in UI)
+          // in the beginning of the stream, there are no messages
           if (newMessages.isEmpty) return;
+          // Add new messages to the beginning of the list (since it's reversed in UI)
           _messages.insert(0, newMessages.last);
 
           emit(
@@ -146,7 +153,7 @@ class MessagesCubit extends Cubit<MessagesState> {
       // If the user scrolls to the very top of the list
       if (messagesListViewController.position.pixels ==
           messagesListViewController.position.maxScrollExtent) {
-        loadMoreMessages();
+        _loadMoreMessages();
       }
     });
   }
