@@ -41,7 +41,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   void dispose() {
     // Stop listening to prevent memory leaks
     WidgetsBinding.instance.removeObserver(this);
-    context.read<AuthCubit>().updateUserStatus(false);
     super.dispose();
   }
 
