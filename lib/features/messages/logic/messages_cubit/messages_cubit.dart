@@ -60,11 +60,13 @@ class MessagesCubit extends Cubit<MessagesState> {
     try {
       final messagesPage = await _messagesRepo.getMessagesPage(chatModel.uid);
       if (messagesPage.isNotEmpty) {
-        _lastMessageDoc = messagesPage
-            .last
-            .rawDoc; // Assuming your model can hold the raw doc
+        // saving the last Message received as a bookmark
+        _lastMessageDoc = messagesPage.last.rawDoc;
         _messages.addAll(messagesPage);
         _listenForNewMessages(); // Start listening for new messages ONLY after the first page is loaded
+      }
+      if (messagesPage.length < 25) {
+        _hasMoreMessages = false;
       }
       emit(
         MessagesLoaded(
@@ -125,7 +127,9 @@ class MessagesCubit extends Cubit<MessagesState> {
         .getNewMessagesStream(chatModel.uid, _messages.first.timeSent)
         .listen((newMessages) {
           // Add new messages to the beginning of the list (since it's reversed in UI)
-          _messages.insertAll(0, newMessages);
+          if (newMessages.isEmpty) return;
+          _messages.insert(0, newMessages.last);
+
           emit(
             MessagesLoaded(
               _messages,

@@ -37,10 +37,7 @@ class DatabaseService {
     return _firestore
         .collection(FirebaseKeys.chatsCollection)
         .where(FirebaseKeys.members, arrayContains: uid)
-        .orderBy(
-          FirebaseKeys.lastActive,
-          descending: true,
-        ) // Sort by most recent
+        .orderBy(FirebaseKeys.lastActive, descending: true)
         .snapshots();
   }
 
@@ -64,9 +61,12 @@ class DatabaseService {
         .update(data);
   }
 
+  //################################ Messages Pagination #########################################
+
   Future<QuerySnapshot<Map<String, dynamic>>> getMessagesPage(
     String chatId, {
     int limit = 25,
+    // we need it, to use it as a bookmark to where to start getting the messages
     DocumentSnapshot? lastMessageDoc,
   }) async {
     // Start building the query to get messages in reverse chronological order
@@ -77,6 +77,7 @@ class DatabaseService {
         .orderBy(FirebaseKeys.timeSent, descending: true);
 
     // If we have a reference to the last document, start the new query after it
+    // (if lastMessage == null, then this is the first time to fetch data, so fetch the most recent ones)
     if (lastMessageDoc != null) {
       query = query.startAfterDocument(lastMessageDoc);
     }
@@ -85,6 +86,7 @@ class DatabaseService {
     return await query.limit(limit).get();
   }
 
+  // return a stream of the latest messages
   Stream<QuerySnapshot<Map<String, dynamic>>> getNewMessagesStream(
     String chatId,
     Timestamp lastVisibleMessageTimestamp,
@@ -102,16 +104,18 @@ class DatabaseService {
         .snapshots();
   }
 
-  Future<void> sendMessage(
-    String chatId,
-    Map<String, dynamic> messageData,
-  ) async {
-    await _firestore
-        .collection(FirebaseKeys.chatsCollection)
-        .doc(chatId)
-        .collection(FirebaseKeys.messagesCollection)
-        .add(messageData);
-  }
+  //################################ Messages Pagination #########################################
+
+  // Future<void> sendMessage(
+  //   String chatId,
+  //   Map<String, dynamic> messageData,
+  // ) async {
+  //   await _firestore
+  //       .collection(FirebaseKeys.chatsCollection)
+  //       .doc(chatId)
+  //       .collection(FirebaseKeys.messagesCollection)
+  //       .add(messageData);
+  // }
 
   // Do multiple writes at the same time
   Future<void> sendChatMessageWithBatch(
