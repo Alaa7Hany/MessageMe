@@ -27,6 +27,9 @@ class MessageModel {
   @TimestampToDateTimeConverter()
   final DateTime timeSent;
 
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  final DocumentSnapshot? rawDoc;
+
   MessageModel({
     required this.senderUid,
     required this.senderName,
@@ -34,10 +37,26 @@ class MessageModel {
     required this.content,
     required this.type,
     required this.timeSent,
+    this.rawDoc,
   });
 
   factory MessageModel.fromJson(Map<String, dynamic> json) =>
       _$MessageModelFromJson(json);
 
   Map<String, dynamic> toJson() => _$MessageModelToJson(this);
+
+  factory MessageModel.fromSnapshot(DocumentSnapshot doc) {
+    final json = doc.data() as Map<String, dynamic>;
+    return MessageModel(
+      senderUid: json[FirebaseKeys.senderUid],
+      senderName: json[FirebaseKeys.senderName],
+      senderImage: json[FirebaseKeys.senderImage],
+      content: json[FirebaseKeys.content],
+      type: json[FirebaseKeys.type],
+      timeSent: const TimestampToDateTimeConverter().fromJson(
+        json[FirebaseKeys.timeSent],
+      ),
+      rawDoc: doc,
+    );
+  }
 }

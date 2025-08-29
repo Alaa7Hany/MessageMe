@@ -5,11 +5,20 @@ import 'package:message_me/core/utils/app_colors.dart';
 import '../../../../core/utils/app_text_styles.dart';
 
 class SendMessageField extends StatelessWidget {
-  const SendMessageField({super.key});
+  final TextEditingController controller;
+  final void Function()? onSendText;
+  final void Function()? onSendImage;
+  const SendMessageField({
+    super.key,
+    required this.controller,
+    this.onSendText,
+    this.onSendImage,
+  });
 
   @override
   Widget build(BuildContext context) {
     return TextField(
+      controller: controller,
       onTapOutside: (event) => FocusScope.of(context).unfocus(),
       textAlign: TextAlign.start,
       style: AppTextStyles.f14w400primary(),
@@ -28,8 +37,28 @@ class SendMessageField extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Icon(Icons.image, color: Colors.blueAccent),
-            Icon(Icons.send, color: AppColors.accentColor),
+            IconButton(
+              icon: Icon(Icons.image),
+              onPressed: onSendImage,
+              color: Colors.blueAccent,
+            ),
+            ValueListenableBuilder<TextEditingValue>(
+              valueListenable: controller,
+              builder: (context, value, child) {
+                // The 'value' is the current state of the controller
+                final bool canSend = value.text.isNotEmpty;
+
+                return IconButton(
+                  // Enable/disable based on the controller's text
+                  onPressed: canSend ? onSendText : null,
+                  icon: Icon(
+                    Icons.send,
+                    // Change color based on the enabled state
+                    color: canSend ? AppColors.accentColor : Colors.grey,
+                  ),
+                );
+              },
+            ),
           ],
         ),
 
