@@ -14,7 +14,7 @@ import '../../../auth/logic/auth_cubit/auth_state.dart';
 import '../../data/repo/chats_repo.dart';
 import '../../logic/chats_cubit/chats_cubit.dart';
 import 'chats_page.dart';
-import 'users_page.dart';
+import 'find_users_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
