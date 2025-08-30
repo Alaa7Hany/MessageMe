@@ -6,6 +6,7 @@ import 'package:get_it/get_it.dart';
 import 'package:message_me/core/services/dependency_injection_service.dart';
 import 'package:message_me/core/utils/app_colors.dart';
 import 'package:message_me/features/auth/logic/auth_cubit/auth_cubit.dart';
+import 'package:message_me/features/auth/views/pages/auth_wrapper_page.dart';
 
 import 'core/routing/app_router.dart';
 import 'core/routing/routes.dart';
@@ -54,7 +55,9 @@ class MyApp extends StatelessWidget {
               unselectedItemColor: AppColors.secondaryTextColor,
             ),
           ),
-          initialRoute: Routes.authWrapper,
+          home: AuthWrapper(),
+
+          // initialRoute: Routes.authWrapper,
           onGenerateRoute: appRouter.generateRoute,
         ),
       ),

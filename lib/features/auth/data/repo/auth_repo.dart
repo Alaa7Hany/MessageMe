@@ -54,6 +54,17 @@ class AuthRepo {
     }
   }
 
+  Future<void> updateUser(String uid, Map<String, dynamic> updatedData) async {
+    try {
+      await _databaseService.updateData(
+        path: '${FirebaseKeys.usersCollection}/$uid',
+        data: updatedData,
+      );
+    } catch (e) {
+      rethrow;
+    }
+  }
+
   /// Updates a user's online status and last active time.
   Future<void> updateUserStatus(String uid, bool isOnline) async {
     try {

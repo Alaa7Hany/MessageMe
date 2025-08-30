@@ -9,7 +9,13 @@ import '../utils/app_colors.dart';
 class RoundedImageNetwork extends StatelessWidget {
   final String? imageUrl;
   final double radius;
-  const RoundedImageNetwork({super.key, this.imageUrl, required this.radius});
+  final bool isGroup;
+  const RoundedImageNetwork({
+    super.key,
+    this.imageUrl,
+    required this.radius,
+    this.isGroup = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +25,11 @@ class RoundedImageNetwork extends StatelessWidget {
           ? NetworkImage(imageUrl!)
           : null,
       child: (imageUrl == null || imageUrl == '')
-          ? Icon(Icons.person, color: AppColors.accentColor, size: radius.r)
+          ? Icon(
+              isGroup ? Icons.group : Icons.person,
+              color: AppColors.accentColor,
+              size: radius.r,
+            )
           : null,
     );
   }

@@ -34,7 +34,7 @@ Future<void> setupGetIt() async {
   getIt.registerLazySingleton<AuthRepo>(
     () => AuthRepo(getIt(), getIt(), getIt(), getIt()),
   );
-  getIt.registerLazySingleton<ChatsRepo>(() => ChatsRepo(getIt()));
+  getIt.registerLazySingleton<ChatsRepo>(() => ChatsRepo(getIt(), getIt()));
   getIt.registerLazySingleton<MessagesRepo>(
     () => MessagesRepo(getIt(), getIt(), getIt()),
   );

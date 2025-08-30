@@ -125,6 +125,7 @@ class FindUsersRepo {
         // 1. Define the base data for the chat.
         final Map<String, dynamic> baseChatData = {
           FirebaseKeys.members: allMemberIds,
+          FirebaseKeys.name: '',
           FirebaseKeys.lastMessageContent: '',
           FirebaseKeys.lastMessageType: '',
           FirebaseKeys.imageUrl: '',

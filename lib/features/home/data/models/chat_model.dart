@@ -12,6 +12,9 @@ class ChatModel {
   @JsonKey(includeFromJson: false, includeToJson: false)
   String uid;
 
+  @JsonKey(name: FirebaseKeys.name)
+  String? name;
+
   @JsonKey(name: FirebaseKeys.isGroup)
   final bool isGroup;
 
@@ -28,7 +31,7 @@ class ChatModel {
   final String? lastMessageType;
 
   @JsonKey(name: FirebaseKeys.imageUrl)
-  final String? imageUrl;
+  String? imageUrl;
 
   @JsonKey(name: FirebaseKeys.createdAt)
   @TimestampToDateTimeConverter()
@@ -40,6 +43,7 @@ class ChatModel {
 
   ChatModel({
     this.uid = '',
+    required this.name,
     required this.isGroup,
     required this.membersIds,
     required this.createdAt,

@@ -9,11 +9,13 @@ import 'package:message_me/features/auth/logic/auth_cubit/auth_cubit.dart';
 import 'package:message_me/features/home/views/pages/setting_page.dart';
 
 import '../../../../core/services/dependency_injection_service.dart';
+import '../../../auth/data/repo/auth_repo.dart';
 import '../../../auth/logic/auth_cubit/auth_state.dart';
 import '../../data/repo/chats_repo.dart';
 import '../../data/repo/find_users_repo.dart';
 import '../../logic/chats_cubit/chats_cubit.dart';
 import '../../logic/find_users_cubit/find_users_cubit.dart';
+import '../../logic/settings_cubit/settings_cubit.dart';
 import 'chats_page.dart';
 import 'find_users_page.dart';
 
@@ -29,7 +31,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   final List<Widget> _pages = const [
     ChatsPage(),
     FindUsersPage(),
-    SettingPage(),
+    SettingsPage(),
   ];
 
   @override
@@ -59,6 +61,10 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         ),
         BlocProvider(
           create: (context) => FindUsersCubit(getIt<FindUsersRepo>()),
+        ),
+        BlocProvider(
+          create: (context) =>
+              SettingsCubit(getIt<AuthRepo>(), getIt<ChatsRepo>()),
         ),
       ],
       child: Scaffold(

@@ -9,14 +9,14 @@ part 'user_model.g.dart';
 @JsonSerializable()
 class UserModel {
   final String uid;
-  final String name;
+  String name;
   final String email;
 
   @JsonKey(name: FirebaseKeys.nameToLowercase)
   final String nameToLowercase;
 
   @JsonKey(name: FirebaseKeys.imageUrl)
-  final String imageUrl;
+  String imageUrl;
 
   @JsonKey(name: FirebaseKeys.lastActive)
   @TimestampToDateTimeConverter()

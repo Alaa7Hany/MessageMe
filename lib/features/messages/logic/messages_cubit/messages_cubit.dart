@@ -49,6 +49,10 @@ class MessagesCubit extends Cubit<MessagesState> {
     return super.close();
   }
 
+  void updateChatData() {
+    emit(MessagesLoaded(_messages, hasMore: _hasMoreMessages));
+  }
+
   void scrollToBottom() {
     // We use a post-frame callback to ensure the list has been built
     // before we try to scroll.

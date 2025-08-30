@@ -7,7 +7,14 @@ import '../utils/app_text_styles.dart';
 class MyElevatedButton extends StatelessWidget {
   final String label;
   final void Function()? onPressed;
-  const MyElevatedButton({super.key, required this.label, this.onPressed});
+  final Color color;
+
+  const MyElevatedButton({
+    super.key,
+    required this.label,
+    this.onPressed,
+    this.color = AppColors.accentColor,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -16,7 +23,7 @@ class MyElevatedButton extends StatelessWidget {
       child: ElevatedButton(
         onPressed: onPressed,
         style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.accentColor,
+          backgroundColor: color,
           disabledBackgroundColor: AppColors.appBarBackground,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(10),

@@ -7,6 +7,7 @@ part of 'chat_model.dart';
 // **************************************************************************
 
 ChatModel _$ChatModelFromJson(Map<String, dynamic> json) => ChatModel(
+  name: json['name'] as String?,
   isGroup: json['is_group'] as bool,
   membersIds: (json['members'] as List<dynamic>)
       .map((e) => e as String)
@@ -21,6 +22,7 @@ ChatModel _$ChatModelFromJson(Map<String, dynamic> json) => ChatModel(
 );
 
 Map<String, dynamic> _$ChatModelToJson(ChatModel instance) => <String, dynamic>{
+  'name': instance.name,
   'is_group': instance.isGroup,
   'members': instance.membersIds,
   'last_message_content': instance.lastMessageContent,

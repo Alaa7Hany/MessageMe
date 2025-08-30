@@ -5,6 +5,7 @@ import '../../features/auth/views/pages/auth_wrapper_page.dart';
 import '../../features/auth/views/pages/signup_page.dart';
 import '../../features/home/data/models/chat_model.dart';
 import '../../features/home/views/pages/home_page.dart';
+import '../../features/messages/views/pages/group_settings_page.dart';
 import '../../features/messages/views/pages/messages_page.dart';
 import 'routes.dart';
 
@@ -28,6 +29,11 @@ class AppRouter {
       case Routes.messages:
         return SlideRoute(
           page: MessagesPage(chatModel: arguments as ChatModel),
+        );
+
+      case Routes.groupSettings:
+        return SlideRoute(
+          page: GroupSettingsPage(chatModel: arguments as ChatModel),
         );
 
       case Routes.home:

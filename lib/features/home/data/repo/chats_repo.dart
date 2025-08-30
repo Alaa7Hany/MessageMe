@@ -1,6 +1,9 @@
 import 'dart:async';
+import 'dart:io';
 
+import 'package:file_picker/file_picker.dart';
 import 'package:message_me/core/firebase/database_service.dart';
+import 'package:message_me/core/firebase/storage_service.dart';
 import 'package:message_me/core/helpers/my_logger.dart';
 import 'package:message_me/core/models/user_model.dart';
 import 'package:message_me/features/home/data/models/chat_model.dart';
@@ -8,8 +11,9 @@ import 'package:message_me/core/firebase/firebase_keys.dart'; // Make sure this 
 
 class ChatsRepo {
   final DatabaseService _databaseService;
+  final StorageService _storageService;
 
-  ChatsRepo(this._databaseService);
+  ChatsRepo(this._databaseService, this._storageService);
 
   /// Converts a stream of QuerySnapshots into a stream of List of ChatModel.
   Stream<List<ChatModel>> getUserChats(String uid) {
@@ -75,6 +79,31 @@ class ChatsRepo {
       return UserModel.fromJson(userData);
     } catch (e) {
       MyLogger.red('Error getting chat member in ChatsRepo: $e');
+      rethrow;
+    }
+  }
+
+  Future<void> updateChat(String chatId, Map<String, dynamic> data) async {
+    try {
+      await _databaseService.updateData(
+        path: '${FirebaseKeys.chatsCollection}/$chatId',
+        data: data,
+      );
+    } catch (e) {
+      MyLogger.red('Error updating chat in ChatsRepo: $e');
+      rethrow;
+    }
+  }
+
+  Future<String?> uploadChatImage(String chatId, PlatformFile file) async {
+    try {
+      final String? imageUrl = await _storageService.uploadChatImage(
+        chatId,
+        File(file.path!),
+      );
+      return imageUrl;
+    } catch (e) {
+      MyLogger.red('Error uploading chat image: $e');
       rethrow;
     }
   }

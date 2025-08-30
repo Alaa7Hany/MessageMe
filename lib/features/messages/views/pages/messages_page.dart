@@ -8,12 +8,14 @@ import 'package:message_me/core/widgets/rounded_image.dart';
 import 'package:message_me/features/messages/views/widgets/message_bubble.dart';
 import 'package:message_me/features/messages/views/widgets/send_message_field.dart';
 
+import '../../../../core/routing/routes.dart';
 import '../../../../core/services/dependency_injection_service.dart';
 import '../../../../core/utils/app_colors.dart';
 import '../../../auth/logic/auth_cubit/auth_cubit.dart';
 import '../../../home/data/models/chat_model.dart';
 import '../../logic/messages_cubit/messages_cubit.dart';
 import '../../logic/messages_cubit/messages_state.dart';
+import '../widgets/messages_appbar.dart';
 
 class MessagesPage extends StatelessWidget {
   final ChatModel chatModel;
@@ -21,11 +23,13 @@ class MessagesPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    late final MessagesCubit cubit;
     final String currentId = AuthCubit.get(context).currentUser!.uid;
     return BlocProvider(
       create: (context) => MessagesCubit(getIt(), chatModel),
       child: Builder(
         builder: (context) {
+          cubit = MessagesCubit.get(context);
           return BlocConsumer<MessagesCubit, MessagesState>(
             listener: (context, state) {
               // Always scroll to the bottom, when a new message arrives
@@ -36,8 +40,25 @@ class MessagesPage extends StatelessWidget {
             },
             builder: (context, state) {
               return Scaffold(
-                appBar: _buildAppBar(context),
-                body: SafeArea(child: _buildUi(context, state, currentId)),
+                appBar: MessagesAppbar(
+                  chatModel: chatModel,
+                  context: context,
+                  onTap: () async {
+                    final result = chatModel.isGroup
+                        ? await Navigator.pushNamed(
+                            context,
+                            Routes.groupSettings,
+                            arguments: chatModel,
+                          )
+                        : null;
+                    if (result == true) {
+                      cubit.updateChatData();
+                    }
+                  },
+                ),
+                body: SafeArea(
+                  child: _buildUi(context, state, currentId, cubit),
+                ),
               );
             },
           );
@@ -46,49 +67,18 @@ class MessagesPage extends StatelessWidget {
     );
   }
 
-  Widget _buildUi(BuildContext context, MessagesState state, String currentId) {
-    final MessagesCubit cubit = MessagesCubit.get(context);
+  Widget _buildUi(
+    BuildContext context,
+    MessagesState state,
+    String currentId,
+    MessagesCubit cubit,
+  ) {
     if (state is MessagesLoaded) {
       return Padding(
         padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 6.0),
         child: Column(
           children: [
-            Expanded(
-              child: state.messages.isNotEmpty
-                  ? ListView.builder(
-                      controller: cubit.messagesListViewController,
-                      reverse:
-                          true, // Add 1 to the item count for the loading indicator at the top
-
-                      itemCount:
-                          state.messages.length + (state.hasMore ? 1 : 0),
-                      itemBuilder: (context, index) {
-                        // If it's the last item and we have more to load, show a spinner
-                        if (index >= state.messages.length) {
-                          return const Center(
-                            child: Padding(
-                              padding: EdgeInsets.all(8.0),
-                              child: CircularProgressIndicator(
-                                color: AppColors.accentColor,
-                              ),
-                            ),
-                          );
-                        }
-                        final message = state.messages[index];
-                        return MessageBubble(
-                          message: message,
-                          currentId: currentId,
-                        );
-                      },
-                    )
-                  : Center(
-                      child: Text(
-                        'No messages\nBe the first one to say Hi👋',
-                        style: AppTextStyles.f24w700primary(),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-            ),
+            Expanded(child: _buildMessagesList(state, cubit, currentId)),
             SendMessageField(
               controller: cubit.messageController,
               onSendText: () {
@@ -112,39 +102,39 @@ class MessagesPage extends StatelessWidget {
     }
   }
 
-  AppBar _buildAppBar(BuildContext context) {
-    final String currentId = getIt<AuthCubit>().currentUser!.uid;
-    return AppBar(
-      toolbarHeight: 50.h,
-      title: Row(
-        mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          chatModel.getChatImageUrl(currentId) != null &&
-                  chatModel.getChatImageUrl(currentId) != ''
-              ? RoundedImageNetwork(
-                  radius: 25,
-                  imageUrl: chatModel.getChatImageUrl(currentId)!,
-                )
-              : RoundedImageFile(radius: 25, isGroup: chatModel.isGroup),
-          SizedBox(width: 8.0.w),
-          Text(
-            chatModel.getChatTitle(currentId),
-            style: AppTextStyles.f18w600primary(),
-          ),
-        ],
-      ),
-      foregroundColor: AppColors.accentColor,
-      actionsPadding: EdgeInsets.zero,
-      backgroundColor: AppColors.appBarBackground,
-      leadingWidth: 35.w,
-      leading: IconButton(
-        icon: Icon(Icons.arrow_back, size: 24.w),
-        onPressed: () {
-          Navigator.of(context).pop();
-        },
-      ),
-    );
+  Widget _buildMessagesList(
+    MessagesLoaded state,
+    MessagesCubit cubit,
+    String currentId,
+  ) {
+    return state.messages.isNotEmpty
+        ? ListView.builder(
+            controller: cubit.messagesListViewController,
+            reverse: true,
+
+            itemCount: state.messages.length + (state.hasMore ? 1 : 0),
+            itemBuilder: (context, index) {
+              // If it's the last item and we have more to load, show a spinner
+              if (index >= state.messages.length) {
+                return const Center(
+                  child: Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: CircularProgressIndicator(
+                      color: AppColors.accentColor,
+                    ),
+                  ),
+                );
+              }
+              final message = state.messages[index];
+              return MessageBubble(message: message, currentId: currentId);
+            },
+          )
+        : Center(
+            child: Text(
+              'No messages\nBe the first one to say Hi👋',
+              style: AppTextStyles.f24w700primary(),
+              textAlign: TextAlign.center,
+            ),
+          );
   }
 }

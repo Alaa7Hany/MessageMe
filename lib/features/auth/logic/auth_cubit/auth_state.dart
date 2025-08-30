@@ -17,3 +17,9 @@ class AuthError extends AuthState {
 }
 
 class AuthLoggedOut extends AuthState {}
+
+class AuthChangeData extends AuthState {
+  final String message;
+
+  AuthChangeData(this.message);
+}

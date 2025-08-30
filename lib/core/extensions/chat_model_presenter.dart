@@ -6,6 +6,10 @@ extension ChatModelPresenter on ChatModel {
     // If it's a group chat with a name, use that. (Assuming you add a name field later)
     // if (isGroup && name != null) return name!;
 
+    if (name != null && name!.isNotEmpty) {
+      return name!;
+    }
+
     final otherMembers = membersModels.where(
       (user) => user.uid != currentUserId,
     );

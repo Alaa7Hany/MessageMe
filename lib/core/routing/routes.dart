@@ -5,4 +5,5 @@ class Routes {
   static const String signup = '/signup';
   static const String authWrapper = '/authWrapper';
   static const String messages = '/messages';
+  static const String groupSettings = '/group-settings';
 }
