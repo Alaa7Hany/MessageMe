@@ -21,13 +21,14 @@ class MessagesAppbar extends StatelessWidget implements PreferredSizeWidget {
   final BuildContext context;
   final void Function()? onTap;
   @override
-  Size get preferredSize => Size.fromHeight(50.h);
+  Size get preferredSize => Size.fromHeight(55.h);
 
   @override
   Widget build(BuildContext context) {
     final String currentId = getIt<AuthCubit>().currentUser!.uid;
     return AppBar(
-      toolbarHeight: 50.h,
+      toolbarHeight: 55.h,
+      centerTitle: true,
       title: InkWell(
         onTap: onTap,
         child: Row(

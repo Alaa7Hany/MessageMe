@@ -8,6 +8,7 @@ import 'package:message_me/core/widgets/loading_screen_overlay.dart';
 import 'package:message_me/core/widgets/my_snackbar.dart';
 import 'package:message_me/core/widgets/my_textform_field.dart';
 import 'package:message_me/core/widgets/rounded_image.dart';
+import 'package:message_me/features/home/views/widgets/user_listtile.dart';
 import 'package:message_me/features/messages/logic/messages_cubit/messages_cubit.dart';
 
 import '../../../../core/utils/app_text_styles.dart';
@@ -49,57 +50,85 @@ class SettingsPage extends StatelessWidget {
     return Container(
       width: double.infinity,
       padding: EdgeInsets.symmetric(horizontal: 10.h, vertical: 20.h),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          InkWell(
-            highlightColor: Colors.transparent,
-            onTap: () => cubit.pickImage(),
-            child: cubit.isImageEdited
-                ? RoundedImageFile(
-                    radius: 100,
-                    image: cubit.imageFile,
-                    isGroup: cubit.isGroupSettings,
-                  )
-                : RoundedImageNetwork(
-                    radius: 100,
-                    imageUrl: cubit.currentSubject?.imageUrl,
-                    isGroup: cubit.isGroupSettings,
-                  ),
-          ),
-          SizedBox(height: 30.h),
-
-          Form(
-            key: cubit.formKey,
-            child: MyTextformField(
-              label: 'Name',
-              controller: cubit.nameController,
-              validator: cubit.isGroupSettings
-                  ? TextFieldValidator.validateNotEmpty
-                  : TextFieldValidator.validateName,
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            InkWell(
+              highlightColor: Colors.transparent,
+              onTap: () => cubit.pickImage(),
+              child: cubit.isImageEdited
+                  ? RoundedImageFile(
+                      radius: 100,
+                      image: cubit.imageFile,
+                      isGroup: cubit.isGroupSettings,
+                    )
+                  : RoundedImageNetwork(
+                      radius: 100,
+                      imageUrl: cubit.currentSubject?.imageUrl,
+                      isGroup: cubit.isGroupSettings,
+                    ),
             ),
-          ),
-          SizedBox(height: 20.h),
-          MyElevatedButton(
-            label: 'Update data',
-            onPressed: cubit.isUpdateable
-                ? () {
-                    cubit.updateUserData();
-                  }
-                : null,
-          ),
-          SizedBox(height: 20.h),
-          MyElevatedButton(
-            label: 'Reset',
-            color: Colors.blueAccent,
-            onPressed: cubit.isResetable
-                ? () {
-                    cubit.loadSettings();
-                  }
-                : null,
-          ),
-        ],
+            SizedBox(height: 30.h),
+
+            Form(
+              key: cubit.formKey,
+              child: MyTextformField(
+                label: 'Name',
+                controller: cubit.nameController,
+                validator: cubit.isGroupSettings
+                    ? TextFieldValidator.validateNotEmpty
+                    : TextFieldValidator.validateName,
+              ),
+            ),
+            SizedBox(height: 20.h),
+            MyElevatedButton(
+              label: 'Update data',
+              onPressed: cubit.isUpdateable
+                  ? () {
+                      cubit.updateUserData();
+                    }
+                  : null,
+            ),
+            SizedBox(height: 20.h),
+            MyElevatedButton(
+              label: 'Reset',
+              color: Colors.blueAccent,
+              onPressed: cubit.isResetable
+                  ? () {
+                      cubit.loadSettings();
+                    }
+                  : null,
+            ),
+            SizedBox(height: 20.h),
+            ...cubit.isGroupSettings
+                ? [
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        'Group Members:',
+                        style: AppTextStyles.f18w600primary(),
+                      ),
+                    ),
+
+                    ListView.builder(
+                      shrinkWrap: true,
+                      physics: NeverScrollableScrollPhysics(),
+                      itemCount: cubit.chatModel!.membersModels.length,
+                      itemBuilder: (context, index) {
+                        final member = cubit.chatModel!.membersModels[index];
+                        return UserListTile(
+                          userModel: member,
+                          onTap: () {},
+                          isSelected: false,
+                        );
+                      },
+                    ),
+                  ]
+                : [SizedBox.shrink()],
+          ],
+        ),
       ),
     );
   }
