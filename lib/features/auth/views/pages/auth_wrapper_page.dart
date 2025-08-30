@@ -21,12 +21,9 @@ class AuthWrapper extends StatelessWidget {
           return const HomePage();
         }
         // When user is logged out, return the LoginPage
-        else if (state is AuthLoggedOut) {
+        else {
           return const LoginPage();
         }
-        // For AuthInitial or any other loading state, show a loading screen.
-        // This is the only UI shown until the state is resolved.
-        return const Scaffold(body: Center(child: CircularProgressIndicator()));
       },
     );
   }
