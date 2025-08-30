@@ -10,6 +10,7 @@ import 'package:message_me/features/home/data/repo/find_users_repo.dart';
 import '../../features/auth/logic/auth_cubit/auth_cubit.dart';
 import '../../features/home/data/repo/chats_repo.dart';
 import '../../features/messages/data/repo/messages_repo.dart';
+import '../cubit/connectivity_cubit/connectivity_cubit.dart';
 import '../firebase/database_service.dart';
 import '../firebase/storage_service.dart';
 
@@ -38,11 +39,11 @@ Future<void> setupGetIt() async {
   getIt.registerLazySingleton<MessagesRepo>(
     () => MessagesRepo(getIt(), getIt(), getIt()),
   );
-
   getIt.registerLazySingleton<FindUsersRepo>(
     () => FindUsersRepo(getIt(), getIt(), getIt()),
   );
 
   // Cubits
   getIt.registerLazySingleton<AuthCubit>(() => AuthCubit(getIt()));
+  getIt.registerLazySingleton<ConnectivityCubit>(() => ConnectivityCubit());
 }
