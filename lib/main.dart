@@ -6,6 +6,7 @@ import 'package:get_it/get_it.dart';
 import 'package:message_me/core/cubit/connectivity_cubit/connectivity_cubit.dart';
 import 'package:message_me/core/services/dependency_injection_service.dart';
 import 'package:message_me/core/utils/app_colors.dart';
+import 'package:message_me/core/utils/app_themes.dart';
 import 'package:message_me/core/widgets/my_snackbar.dart';
 import 'package:message_me/features/auth/logic/auth_cubit/auth_cubit.dart';
 import 'package:message_me/features/auth/views/pages/auth_wrapper_page.dart';
@@ -39,28 +40,7 @@ class MyApp extends StatelessWidget {
         child: MaterialApp(
           debugShowCheckedModeBanner: false,
           title: 'MessageMe',
-          theme: ThemeData(
-            progressIndicatorTheme: ProgressIndicatorThemeData(
-              color: AppColors.accentColor,
-            ),
-            textSelectionTheme: const TextSelectionThemeData(
-              cursorColor: AppColors.accentColor,
-              selectionColor: AppColors.accentColor,
-              selectionHandleColor: AppColors.accentColor,
-            ),
-            splashColor: Colors.transparent,
-            splashFactory: NoSplash.splashFactory,
-
-            scaffoldBackgroundColor: AppColors.scaffoldBackground,
-            appBarTheme: AppBarTheme(
-              backgroundColor: AppColors.appBarBackground,
-            ),
-            bottomNavigationBarTheme: BottomNavigationBarThemeData(
-              backgroundColor: AppColors.scaffoldBackground,
-              selectedItemColor: AppColors.accentColor,
-              unselectedItemColor: AppColors.secondaryTextColor,
-            ),
-          ),
+          theme: AppThemes.mainAppTheme,
           home: BlocListener<ConnectivityCubit, ConnectivityState>(
             listenWhen: (previous, current) {
               // This condition prevents the listener from running on the initial check

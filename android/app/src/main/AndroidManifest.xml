@@ -1,8 +1,30 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- 
+      - INTERNET: Required to connect to your chat servers, send/receive messages,
+      - and upload/download images. This is essential for any network activity.
+    -->
+    <uses-permission android:name="android.permission.INTERNET"/>
+
+     <!-- 
+      - READ_MEDIA_IMAGES: This is the modern permission (Android 13+) to access
+      - images in the gallery. It's the recommended, more privacy-focused approach.
+    -->
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+
+    <!-- 
+      - READ_EXTERNAL_STORAGE: This is the older permission for accessing files
+      - on external storage. You might still need it to support older Android
+      - versions (below 13). You can set a max SDK version so it's only requested
+      - on devices that need it.
+    -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32" />
+
+
     <application
         android:label="MessageMe"
         android:name="${applicationName}"
-        android:icon="@mipmap/launcher_icon">
+        android:icon="@mipmap/ic_launcher">
         <activity
             android:name=".MainActivity"
             android:exported="true"
