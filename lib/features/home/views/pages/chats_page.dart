@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:message_me/core/extensions/navigation_extensions.dart';
-import 'package:message_me/core/routing/routes.dart';
-import 'package:message_me/core/widgets/my_snackbar.dart';
-import 'package:message_me/core/utils/app_colors.dart';
-import 'package:message_me/core/utils/app_text_styles.dart';
-import 'package:message_me/features/home/logic/chats_cubit/chats_cubit.dart';
+import '../../../../core/extensions/navigation_extensions.dart';
+import '../../../../core/routing/routes.dart';
+import '../../../../core/widgets/my_snackbar.dart';
+import '../../../../core/utils/app_colors.dart';
+import '../../../../core/utils/app_text_styles.dart';
+import '../../logic/chats_cubit/chats_cubit.dart';
 
 import '../../logic/chats_cubit/chats_state.dart';
 import '../widgets/chat_listtile.dart';

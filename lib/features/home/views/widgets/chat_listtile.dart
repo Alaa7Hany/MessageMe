@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:message_me/core/extensions/chat_model_presenter.dart';
-import 'package:message_me/core/services/dependency_injection_service.dart';
-import 'package:message_me/features/auth/logic/auth_cubit/auth_cubit.dart';
-import 'package:message_me/core/widgets/rounded_image.dart';
+import '../../../../core/extensions/chat_model_presenter.dart';
+import '../../../../core/services/dependency_injection_service.dart';
+import '../../../auth/logic/auth_cubit/auth_cubit.dart';
+import '../../../../core/widgets/rounded_image.dart';
 
 import '../../../../core/utils/app_colors.dart';
 import '../../../../core/utils/app_text_styles.dart';

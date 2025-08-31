@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:message_me/core/extensions/chat_model_presenter.dart';
-import 'package:message_me/core/utils/app_text_styles.dart';
-import 'package:message_me/core/widgets/my_snackbar.dart';
-import 'package:message_me/core/widgets/rounded_image.dart';
-import 'package:message_me/features/messages/views/widgets/message_bubble.dart';
-import 'package:message_me/features/messages/views/widgets/send_message_field.dart';
+
+import '../../../../core/utils/app_text_styles.dart';
+import '../../../../core/widgets/my_snackbar.dart';
+import '../widgets/message_bubble.dart';
+import '../widgets/send_message_field.dart';
 
 import '../../../../core/routing/routes.dart';
 import '../../../../core/services/dependency_injection_service.dart';

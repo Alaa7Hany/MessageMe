@@ -2,8 +2,8 @@ import 'dart:io';
 
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
-import 'package:message_me/core/firebase/firebase_keys.dart';
-import 'package:message_me/core/helpers/my_logger.dart';
+import 'firebase_keys.dart';
+import '../helpers/my_logger.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:uuid/uuid.dart';
 import 'package:path/path.dart' as path;

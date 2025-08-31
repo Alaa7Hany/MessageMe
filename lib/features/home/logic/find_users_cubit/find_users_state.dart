@@ -1,4 +1,4 @@
-import 'package:message_me/features/home/data/models/chat_model.dart';
+import '../../data/models/chat_model.dart';
 
 import '../../../../core/models/user_model.dart';
 

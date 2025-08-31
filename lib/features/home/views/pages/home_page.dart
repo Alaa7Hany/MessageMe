@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:message_me/core/extensions/navigation_extensions.dart';
-import 'package:message_me/core/routing/routes.dart';
-import 'package:message_me/core/utils/app_assets.dart';
-import 'package:message_me/core/utils/app_colors.dart';
-import 'package:message_me/features/auth/logic/auth_cubit/auth_cubit.dart';
-import 'package:message_me/features/home/views/pages/setting_page.dart';
+import '../../../../core/routing/routes.dart';
+import '../../../../core/utils/app_assets.dart';
+import '../../../../core/utils/app_colors.dart';
+import '../../../auth/logic/auth_cubit/auth_cubit.dart';
+import 'setting_page.dart';
 
 import '../../../../core/services/dependency_injection_service.dart';
 import '../../../auth/data/repo/auth_repo.dart';

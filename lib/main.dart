@@ -2,18 +2,15 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:get_it/get_it.dart';
-import 'package:message_me/core/cubit/connectivity_cubit/connectivity_cubit.dart';
-import 'package:message_me/core/services/dependency_injection_service.dart';
-import 'package:message_me/core/utils/app_colors.dart';
-import 'package:message_me/core/utils/app_themes.dart';
-import 'package:message_me/core/widgets/my_snackbar.dart';
-import 'package:message_me/features/auth/logic/auth_cubit/auth_cubit.dart';
-import 'package:message_me/features/auth/views/pages/auth_wrapper_page.dart';
+import 'core/cubit/connectivity_cubit/connectivity_cubit.dart';
+import 'core/services/dependency_injection_service.dart';
+import 'core/utils/app_themes.dart';
+import 'core/widgets/my_snackbar.dart';
+import 'features/auth/logic/auth_cubit/auth_cubit.dart';
+import 'features/auth/views/pages/auth_wrapper_page.dart';
 
 import 'core/cubit/connectivity_cubit/connectivity_state.dart';
 import 'core/routing/app_router.dart';
-import 'core/routing/routes.dart';
 import 'firebase_options.dart';
 
 void main() async {

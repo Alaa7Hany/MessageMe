@@ -2,10 +2,9 @@ import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:message_me/core/helpers/my_logger.dart';
-import 'package:message_me/core/models/user_model.dart';
+import '../../../../core/helpers/my_logger.dart';
+import '../../../../core/models/user_model.dart';
 
-import '../../../../core/firebase/firebase_keys.dart';
 import '../../data/repo/auth_repo.dart';
 import 'auth_state.dart';
 

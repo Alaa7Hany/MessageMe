@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:message_me/core/extensions/chat_model_presenter.dart';
+import '../../../../core/extensions/chat_model_presenter.dart';
 
 import '../../../../core/services/dependency_injection_service.dart';
 import '../../../../core/utils/app_colors.dart';

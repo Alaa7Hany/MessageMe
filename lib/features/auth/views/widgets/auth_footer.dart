@@ -1,7 +1,7 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:message_me/core/extensions/navigation_extensions.dart';
-import 'package:message_me/core/utils/app_text_styles.dart';
+import '../../../../core/extensions/navigation_extensions.dart';
+import '../../../../core/utils/app_text_styles.dart';
 
 import '../../../../core/routing/routes.dart';
 

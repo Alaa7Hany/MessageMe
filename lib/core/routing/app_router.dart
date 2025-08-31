@@ -1,5 +1,5 @@
-import 'package:message_me/core/helpers/custom_page_routes.dart';
-import 'package:message_me/features/auth/views/pages/login_page.dart';
+import '../helpers/custom_page_routes.dart';
+import '../../features/auth/views/pages/login_page.dart';
 
 import '../../features/auth/views/pages/auth_wrapper_page.dart';
 import '../../features/auth/views/pages/signup_page.dart';

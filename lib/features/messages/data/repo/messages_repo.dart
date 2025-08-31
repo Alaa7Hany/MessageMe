@@ -2,10 +2,10 @@ import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:message_me/core/firebase/database_service.dart';
-import 'package:message_me/core/firebase/storage_service.dart';
-import 'package:message_me/core/services/media_service.dart';
-import 'package:message_me/features/messages/data/models/message_model.dart';
+import '../../../../core/firebase/database_service.dart';
+import '../../../../core/firebase/storage_service.dart';
+import '../../../../core/services/media_service.dart';
+import '../models/message_model.dart';
 
 import '../../../../core/firebase/firebase_keys.dart';
 import '../../../../core/helpers/my_logger.dart';

@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:json_annotation/json_annotation.dart';
-import 'package:message_me/core/firebase/firebase_keys.dart';
+import '../../../../core/firebase/firebase_keys.dart';
 
 import '../../../../core/helpers/time_stamp_convertor.dart';
 

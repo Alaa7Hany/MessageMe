@@ -1,23 +1,15 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:message_me/core/firebase/database_service.dart';
-import 'package:message_me/core/firebase/firebase_keys.dart';
-import 'package:message_me/core/firebase/storage_service.dart';
-import 'package:message_me/core/helpers/my_logger.dart';
-import 'package:message_me/core/services/media_service.dart';
-import 'package:message_me/features/home/data/models/chat_model.dart';
+import '../../../../core/firebase/database_service.dart';
+import '../../../../core/firebase/firebase_keys.dart';
+import '../../../../core/helpers/my_logger.dart';
+import '../models/chat_model.dart';
 
 import '../../../../core/models/user_model.dart';
 
 class FindUsersRepo {
   final DatabaseService _databaseService;
-  final MediaService _mediaService;
-  final StorageService _storageService;
 
-  FindUsersRepo(
-    this._databaseService,
-    this._mediaService,
-    this._storageService,
-  );
+  FindUsersRepo(this._databaseService);
 
   Future<List<UserModel>> getUsersPage({
     required String currentUserId,

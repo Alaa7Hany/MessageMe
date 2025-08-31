@@ -4,10 +4,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:message_me/core/services/dependency_injection_service.dart';
-import 'package:message_me/features/auth/logic/auth_cubit/auth_cubit.dart';
-import 'package:message_me/features/home/data/models/chat_model.dart';
-import 'package:message_me/features/messages/data/models/message_model.dart';
+import '../../../../core/services/dependency_injection_service.dart';
+import '../../../auth/logic/auth_cubit/auth_cubit.dart';
+import '../../../home/data/models/chat_model.dart';
+import '../../data/models/message_model.dart';
 
 import '../../../../core/helpers/my_logger.dart';
 import '../../../../core/models/user_model.dart';

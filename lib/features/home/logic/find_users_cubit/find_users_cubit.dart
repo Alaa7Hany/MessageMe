@@ -2,8 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:message_me/core/services/dependency_injection_service.dart';
-import 'package:message_me/features/auth/logic/auth_cubit/auth_cubit.dart';
+import '../../../../core/services/dependency_injection_service.dart';
+import '../../../auth/logic/auth_cubit/auth_cubit.dart';
 
 import '../../../../core/helpers/my_logger.dart';
 import '../../../../core/models/user_model.dart';

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:message_me/core/utils/app_assets.dart';
-import 'package:message_me/core/utils/app_colors.dart';
+import '../../../../core/utils/app_assets.dart';
+import '../../../../core/utils/app_colors.dart';
 
 class LogoWidget extends StatelessWidget {
   const LogoWidget({super.key});

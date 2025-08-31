@@ -2,10 +2,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:get_it/get_it.dart';
-import 'package:message_me/core/firebase/auth_service.dart';
-import 'package:message_me/core/services/media_service.dart';
-import 'package:message_me/features/auth/data/repo/auth_repo.dart';
-import 'package:message_me/features/home/data/repo/find_users_repo.dart';
+import '../firebase/auth_service.dart';
+import 'media_service.dart';
+import '../../features/auth/data/repo/auth_repo.dart';
+import '../../features/home/data/repo/find_users_repo.dart';
 
 import '../../features/auth/logic/auth_cubit/auth_cubit.dart';
 import '../../features/home/data/repo/chats_repo.dart';
@@ -39,9 +39,7 @@ Future<void> setupGetIt() async {
   getIt.registerLazySingleton<MessagesRepo>(
     () => MessagesRepo(getIt(), getIt(), getIt()),
   );
-  getIt.registerLazySingleton<FindUsersRepo>(
-    () => FindUsersRepo(getIt(), getIt(), getIt()),
-  );
+  getIt.registerLazySingleton<FindUsersRepo>(() => FindUsersRepo(getIt()));
 
   // Cubits
   getIt.registerLazySingleton<AuthCubit>(() => AuthCubit(getIt()));

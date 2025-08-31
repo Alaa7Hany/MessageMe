@@ -2,9 +2,9 @@ import 'dart:async';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'package:message_me/core/helpers/my_logger.dart';
-import 'package:message_me/features/auth/logic/auth_cubit/auth_cubit.dart';
-import 'package:message_me/features/home/data/repo/chats_repo.dart';
+import '../../../../core/helpers/my_logger.dart';
+import '../../../auth/logic/auth_cubit/auth_cubit.dart';
+import '../../data/repo/chats_repo.dart';
 
 import '../../../../core/services/dependency_injection_service.dart';
 import 'chats_state.dart';

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:message_me/core/utils/app_text_styles.dart';
-import 'package:message_me/core/widgets/rounded_image.dart';
-import 'package:message_me/features/messages/data/models/message_model.dart';
+import '../../../../core/utils/app_text_styles.dart';
+import '../../../../core/widgets/rounded_image.dart';
+import '../../data/models/message_model.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../core/utils/app_colors.dart';

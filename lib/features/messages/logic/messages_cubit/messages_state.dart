@@ -1,4 +1,4 @@
-import 'package:message_me/features/messages/data/models/message_model.dart';
+import '../../data/models/message_model.dart';
 
 abstract class MessagesState {}
 

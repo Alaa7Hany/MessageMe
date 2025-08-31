@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:message_me/core/services/dependency_injection_service.dart';
-import 'package:message_me/core/utils/app_colors.dart';
-import 'package:message_me/core/utils/app_text_styles.dart';
-import 'package:message_me/features/auth/data/repo/auth_repo.dart';
-import 'package:message_me/features/home/data/models/chat_model.dart';
-import 'package:message_me/features/home/logic/settings_cubit/settings_cubit.dart';
+import '../../../../core/services/dependency_injection_service.dart';
+import '../../../../core/utils/app_colors.dart';
+import '../../../../core/utils/app_text_styles.dart';
+import '../../../auth/data/repo/auth_repo.dart';
+import '../../../home/data/models/chat_model.dart';
+import '../../../home/logic/settings_cubit/settings_cubit.dart';
 
 import '../../../home/data/repo/chats_repo.dart';
 import '../../../home/views/pages/setting_page.dart';

@@ -1,18 +1,15 @@
-import 'dart:io';
-
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:message_me/core/extensions/chat_model_presenter.dart';
-import 'package:message_me/core/helpers/my_logger.dart';
-import 'package:message_me/core/services/dependency_injection_service.dart';
-import 'package:message_me/features/auth/data/repo/auth_repo.dart';
-import 'package:message_me/features/auth/logic/auth_cubit/auth_cubit.dart';
-import 'package:message_me/features/home/data/models/chat_model.dart';
-import 'package:message_me/features/home/data/repo/chats_repo.dart';
+import '../../../../core/extensions/chat_model_presenter.dart';
+import '../../../../core/helpers/my_logger.dart';
+import '../../../../core/services/dependency_injection_service.dart';
+import '../../../auth/data/repo/auth_repo.dart';
+import '../../../auth/logic/auth_cubit/auth_cubit.dart';
+import '../../data/models/chat_model.dart';
+import '../../data/repo/chats_repo.dart';
 
 import '../../../../core/firebase/firebase_keys.dart';
-import '../../../../core/models/user_model.dart';
 import 'settings_state.dart';
 
 class SettingsCubit extends Cubit<SettingsState> {
