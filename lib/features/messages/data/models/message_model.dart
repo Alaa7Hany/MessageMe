@@ -6,15 +6,21 @@ import '../../../../core/helpers/time_stamp_convertor.dart';
 
 part 'message_model.g.dart';
 
+enum MessageStatus { sending, sent, failed }
+
 @JsonSerializable()
 class MessageModel {
   @JsonKey(name: FirebaseKeys.senderUid)
   final String senderUid;
 
+  @JsonKey(name: FirebaseKeys.tempId)
+  final String? tempId;
+
   @JsonKey(name: FirebaseKeys.senderName)
   final String senderName;
+
   @JsonKey(includeFromJson: false, includeToJson: false)
-  String uid;
+  final String? uid;
 
   @JsonKey(name: FirebaseKeys.senderImage)
   final String senderImage;
@@ -28,12 +34,15 @@ class MessageModel {
   @JsonKey(name: FirebaseKeys.timeSent)
   @TimestampToDateTimeConverter()
   final DateTime timeSent;
-
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  MessageStatus status;
   @JsonKey(includeFromJson: false, includeToJson: false)
   final DocumentSnapshot? rawDoc;
 
   MessageModel({
-    this.uid = '',
+    this.uid,
+    this.tempId,
+    this.status = MessageStatus.sent,
     required this.senderUid,
     required this.senderName,
     required this.senderImage,
@@ -52,6 +61,7 @@ class MessageModel {
     final json = doc.data() as Map<String, dynamic>;
     return MessageModel(
       uid: json[FirebaseKeys.uid],
+      tempId: json[FirebaseKeys.tempId],
       senderUid: json[FirebaseKeys.senderUid],
       senderName: json[FirebaseKeys.senderName],
       senderImage: json[FirebaseKeys.senderImage],
@@ -60,7 +70,28 @@ class MessageModel {
       timeSent: const TimestampToDateTimeConverter().fromJson(
         json[FirebaseKeys.timeSent],
       ),
+      status: MessageStatus.sent,
       rawDoc: doc,
+    );
+  }
+
+  MessageModel copyWith({
+    String? uid,
+    String? tempId,
+    MessageStatus? status,
+    String? content,
+  }) {
+    return MessageModel(
+      uid: uid ?? this.uid,
+      tempId: tempId ?? this.tempId,
+      status: status ?? this.status,
+      content: content ?? this.content,
+      senderUid: senderUid,
+      senderName: senderName,
+      senderImage: senderImage,
+      type: type,
+      timeSent: timeSent,
+      rawDoc: rawDoc,
     );
   }
 }

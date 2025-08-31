@@ -18,6 +18,7 @@
       - versions (below 13). You can set a max SDK version so it's only requested
       - on devices that need it.
     -->
+
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32" />
 
 

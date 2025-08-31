@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:message_me/core/cubit/connectivity_cubit/connectivity_state.dart';
+import '../../../../core/cubit/connectivity_cubit/connectivity_cubit.dart';
 import '../../../../core/utils/app_colors.dart';
 
 import '../../../../core/utils/app_text_styles.dart';
@@ -8,6 +11,7 @@ class SendMessageField extends StatelessWidget {
   final TextEditingController controller;
   final void Function()? onSendText;
   final void Function()? onSendImage;
+
   const SendMessageField({
     super.key,
     required this.controller,
@@ -32,34 +36,43 @@ class SendMessageField extends StatelessWidget {
           vertical: 12.0.h,
           horizontal: 10.0.w,
         ),
-        suffixIcon: Row(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            IconButton(
-              icon: Icon(Icons.image),
-              onPressed: onSendImage,
-              color: Colors.blueAccent,
-            ),
-            ValueListenableBuilder<TextEditingValue>(
-              valueListenable: controller,
-              builder: (context, value, child) {
-                // The 'value' is the current state of the controller
-                final bool canSend = value.text.isNotEmpty;
+        suffixIcon: BlocBuilder<ConnectivityCubit, ConnectivityState>(
+          builder: (context, state) {
+            return Row(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                IconButton(
+                  icon: Icon(Icons.image),
+                  onPressed: state is ConnectivityDisconnected
+                      ? null
+                      : onSendImage,
 
-                return IconButton(
-                  // Enable/disable based on the controller's text
-                  onPressed: canSend ? onSendText : null,
-                  icon: Icon(
-                    Icons.send,
-                    // Change color based on the enabled state
-                    color: canSend ? AppColors.accentColor : Colors.grey,
-                  ),
-                );
-              },
-            ),
-          ],
+                  color: Colors.blueAccent,
+                ),
+                ValueListenableBuilder<TextEditingValue>(
+                  valueListenable: controller,
+                  builder: (context, value, child) {
+                    // The 'value' is the current state of the controller
+                    final bool canSend =
+                        value.text.isNotEmpty &&
+                        state is! ConnectivityDisconnected;
+
+                    return IconButton(
+                      // Enable/disable based on the controller's text
+                      onPressed: canSend ? onSendText : null,
+                      icon: Icon(
+                        Icons.send,
+                        // Change color based on the enabled state
+                        color: canSend ? AppColors.accentColor : Colors.grey,
+                      ),
+                    );
+                  },
+                ),
+              ],
+            );
+          },
         ),
 
         suffixIconConstraints: BoxConstraints(minWidth: 70.w),

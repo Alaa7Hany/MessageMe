@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../../core/utils/app_text_styles.dart';
@@ -23,7 +25,11 @@ class MessageBubble extends StatelessWidget {
 
     // Define colors based on the sender
     final bubbleColor = isSender
-        ? AppColors.accentColor
+        ? (message.status == MessageStatus.failed
+              ? AppColors.error.withAlpha(60)
+              : message.status == MessageStatus.sending
+              ? AppColors.accentColor.withAlpha(60)
+              : AppColors.accentColor)
         : AppColors.appBarBackground;
     final textColor = isSender
         ? AppColors.scaffoldBackground
@@ -36,61 +42,83 @@ class MessageBubble extends StatelessWidget {
     final String formattedTime = DateFormat('hh:mm a').format(message.timeSent);
 
     // Build the message bubble widget
-    final bubble = Container(
-      // Constrain the bubble's width to be a maximum of 75% of the screen
-      constraints: BoxConstraints(
-        maxWidth: MediaQuery.of(context).size.width * 0.70,
-      ),
-      padding: EdgeInsets.symmetric(vertical: 10.h, horizontal: 14.w),
-      decoration: BoxDecoration(
-        color: bubbleColor,
-        borderRadius: BorderRadius.only(
-          topLeft: const Radius.circular(16),
-          topRight: const Radius.circular(16),
-          bottomLeft: isSender
-              ? const Radius.circular(16)
-              : const Radius.circular(0),
-          bottomRight: isSender
-              ? const Radius.circular(0)
-              : const Radius.circular(16),
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          message.type == 'text'
-              ? Text(
-                  message.content,
-                  style: AppTextStyles.f16w400primary().copyWith(
-                    color: textColor,
-                  ),
-                )
-              : Container(
-                  constraints: BoxConstraints(
-                    maxHeight: 300.h,
-                    maxWidth: 200.w,
-                  ),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(12.r),
-                  ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(12.r),
-                    child: Image.network(message.content, fit: BoxFit.cover),
-                  ),
-                ),
-          SizedBox(height: 5.h),
-          Align(
-            alignment: Alignment.centerRight,
-            child: Text(
-              formattedTime,
-              style: AppTextStyles.f12w400secondary().copyWith(
-                color: timeColor,
-              ),
+    final bubble = Stack(
+      children: [
+        Container(
+          constraints: BoxConstraints(
+            maxWidth: MediaQuery.of(context).size.width * 0.70,
+          ),
+          padding: EdgeInsets.symmetric(vertical: 10.h, horizontal: 14.w),
+          decoration: BoxDecoration(
+            color: bubbleColor,
+            borderRadius: BorderRadius.only(
+              topLeft: const Radius.circular(16),
+              topRight: const Radius.circular(16),
+              bottomLeft: isSender
+                  ? const Radius.circular(16)
+                  : const Radius.circular(0),
+              bottomRight: isSender
+                  ? const Radius.circular(0)
+                  : const Radius.circular(16),
             ),
           ),
-        ],
-      ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              message.type == 'text'
+                  ? Text(
+                      message.content,
+                      style: AppTextStyles.f16w400primary().copyWith(
+                        color: textColor,
+                      ),
+                    )
+                  : Container(
+                      constraints: BoxConstraints(
+                        maxHeight: 300.h,
+                        maxWidth: 200.w,
+                      ),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(12.r),
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(12.r),
+                        child: message.status == MessageStatus.sent
+                            ? Image.network(message.content, fit: BoxFit.cover)
+                            : Image.file(File(message.content)),
+                      ),
+                    ),
+              SizedBox(height: 5.h),
+              Row(
+                children: [
+                  message.status != MessageStatus.sent
+                      ? Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            message.status.name,
+                            style: AppTextStyles.f12w400secondary().copyWith(
+                              color: timeColor,
+                            ),
+                          ),
+                        )
+                      : SizedBox.shrink(),
+                  Expanded(
+                    child: Align(
+                      alignment: Alignment.centerRight,
+                      child: Text(
+                        formattedTime,
+                        style: AppTextStyles.f12w400secondary().copyWith(
+                          color: timeColor,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ],
     );
 
     return Padding(
