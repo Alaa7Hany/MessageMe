@@ -128,14 +128,24 @@ class MessagesCubit extends Cubit<MessagesState> {
             (newMessages) {
               // in the beginning of the stream, there are no messages
               if (newMessages.isEmpty) return;
+              bool wereMessagesAdded = false;
               // Add new messages to the beginning of the list (since it's reversed in UI)
-              _messages.insert(0, newMessages.last);
-              MyLogger.yellow(
-                'New message received: ${newMessages.last.content}',
-              );
-              emit(MessagesLoaded(_messages, hasMore: _hasMoreMessages));
+              for (final message in newMessages.reversed) {
+                // ✅ FIX: Check if the message already exists using its unique ID
+                if (!_messages.any(
+                  (existingMessage) => existingMessage.uid == message.uid,
+                )) {
+                  _messages.insert(0, message);
+                  wereMessagesAdded = true;
+                  MyLogger.yellow('New message added: ${message.content}');
+                }
+              }
 
-              scrollToBottom();
+              // Only update the state and scroll if new messages were actually added
+              if (wereMessagesAdded) {
+                emit(MessagesLoaded(_messages, hasMore: _hasMoreMessages));
+                scrollToBottom();
+              }
             },
             onError: (error) {
               MyLogger.red('Error listening for new messages: $error');

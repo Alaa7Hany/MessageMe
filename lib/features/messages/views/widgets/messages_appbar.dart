@@ -44,9 +44,13 @@ class MessagesAppbar extends StatelessWidget implements PreferredSizeWidget {
                   )
                 : RoundedImageFile(radius: 25, isGroup: chatModel.isGroup),
             SizedBox(width: 8.0.w),
-            Text(
-              chatModel.getChatTitle(currentId),
-              style: AppTextStyles.f18w600primary(),
+            Expanded(
+              child: Text(
+                chatModel.getChatTitle(currentId),
+                style: AppTextStyles.f18w600primary(),
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
+              ),
             ),
           ],
         ),

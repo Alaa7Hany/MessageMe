@@ -17,7 +17,6 @@ class MessagesRepo {
 
   MessagesRepo(this._database, this._mediaService, this._storageService);
 
-  // ... (getMessagesPage and getNewMessagesStream are unchanged) ...
   Future<List<MessageModel>> getMessagesPage(
     String chatId, {
     int limit = 25,
@@ -91,6 +90,7 @@ class MessagesRepo {
             .doc();
 
         final messageData = message.toJson();
+        messageData[FirebaseKeys.uid] = newMessageRef.id;
 
         // Operation 1: Set the new message data
         batch.set(newMessageRef, messageData);

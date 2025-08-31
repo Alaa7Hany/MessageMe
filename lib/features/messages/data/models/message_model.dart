@@ -13,6 +13,8 @@ class MessageModel {
 
   @JsonKey(name: FirebaseKeys.senderName)
   final String senderName;
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  String uid;
 
   @JsonKey(name: FirebaseKeys.senderImage)
   final String senderImage;
@@ -31,6 +33,7 @@ class MessageModel {
   final DocumentSnapshot? rawDoc;
 
   MessageModel({
+    this.uid = '',
     required this.senderUid,
     required this.senderName,
     required this.senderImage,
@@ -48,6 +51,7 @@ class MessageModel {
   factory MessageModel.fromSnapshot(DocumentSnapshot doc) {
     final json = doc.data() as Map<String, dynamic>;
     return MessageModel(
+      uid: json[FirebaseKeys.uid],
       senderUid: json[FirebaseKeys.senderUid],
       senderName: json[FirebaseKeys.senderName],
       senderImage: json[FirebaseKeys.senderImage],
