@@ -51,6 +51,28 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   }
 
   @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+
+    final authCubit = context.read<AuthCubit>();
+
+    switch (state) {
+      case AppLifecycleState.resumed:
+        // App is in the foreground and interactive.
+        authCubit.updateUserStatus(true);
+        break;
+      case AppLifecycleState.inactive:
+      case AppLifecycleState.paused:
+      case AppLifecycleState.detached:
+        // App is backgrounded, closed, or otherwise not active.
+        authCubit.updateUserStatus(false);
+        break;
+      case AppLifecycleState.hidden:
+        throw UnimplementedError();
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     // MyLogger.bgMagenta('HomePage, Building HomePage');
     return MultiBlocProvider(
