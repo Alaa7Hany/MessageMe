@@ -68,7 +68,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         authCubit.updateUserStatus(false);
         break;
       case AppLifecycleState.hidden:
-        throw UnimplementedError();
     }
   }
 
