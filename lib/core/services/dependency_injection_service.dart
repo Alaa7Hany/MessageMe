@@ -10,7 +10,7 @@ import '../../features/home/data/repo/find_users_repo.dart';
 import '../../features/auth/logic/auth_cubit/auth_cubit.dart';
 import '../../features/home/data/repo/chats_repo.dart';
 import '../../features/messages/data/repo/messages_repo.dart';
-import '../cubit/connectivity_cubit/connectivity_cubit.dart';
+import 'connectivity_cubit/connectivity_cubit.dart';
 import '../firebase/database_service.dart';
 import '../firebase/storage_service.dart';
 

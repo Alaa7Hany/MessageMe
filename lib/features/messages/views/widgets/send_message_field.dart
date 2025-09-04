@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:message_me/core/cubit/connectivity_cubit/connectivity_state.dart';
-import '../../../../core/cubit/connectivity_cubit/connectivity_cubit.dart';
+import 'package:message_me/core/services/connectivity_cubit/connectivity_state.dart';
+import '../../../../core/services/connectivity_cubit/connectivity_cubit.dart';
 import '../../../../core/utils/app_colors.dart';
 
 import '../../../../core/utils/app_text_styles.dart';
