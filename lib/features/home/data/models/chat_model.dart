@@ -40,6 +40,9 @@ class ChatModel {
   @TimestampToDateTimeConverter()
   final DateTime lastActive;
 
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  bool hasUnreadMessage;
+
   ChatModel({
     this.uid = '',
     required this.name,
@@ -51,10 +54,39 @@ class ChatModel {
     this.membersModels = const [],
     this.lastMessageContent,
     this.lastMessageType,
+    this.hasUnreadMessage = false,
   });
 
   factory ChatModel.fromJson(Map<String, dynamic> json) =>
       _$ChatModelFromJson(json);
 
   Map<String, dynamic> toJson() => _$ChatModelToJson(this);
+
+  ChatModel copyWith({
+    String? uid,
+    String? name,
+    bool? isGroup,
+    List<String>? membersIds,
+    List<UserModel>? membersModels,
+    String? lastMessageContent,
+    String? lastMessageType,
+    String? imageUrl,
+    DateTime? createdAt,
+    DateTime? lastActive,
+    bool? hasUnreadMessage,
+  }) {
+    return ChatModel(
+      uid: uid ?? this.uid,
+      name: name ?? this.name,
+      isGroup: isGroup ?? this.isGroup,
+      membersIds: membersIds ?? this.membersIds,
+      membersModels: membersModels ?? this.membersModels,
+      lastMessageContent: lastMessageContent ?? this.lastMessageContent,
+      lastMessageType: lastMessageType ?? this.lastMessageType,
+      imageUrl: imageUrl ?? this.imageUrl,
+      createdAt: createdAt ?? this.createdAt,
+      lastActive: lastActive ?? this.lastActive,
+      hasUnreadMessage: hasUnreadMessage ?? this.hasUnreadMessage,
+    );
+  }
 }

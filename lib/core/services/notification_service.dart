@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:message_me/core/firebase/database_service.dart';
@@ -14,6 +16,10 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 class NotificationService {
   final FirebaseMessaging _fcm;
   final DatabaseService _databaseService;
+
+  // StreamController to broadcast the chatId
+  final _newMessageController = StreamController<String>.broadcast();
+  Stream<String> get newMessageStream => _newMessageController.stream;
 
   NotificationService(this._fcm, this._databaseService);
 
@@ -53,8 +59,12 @@ class NotificationService {
   void _setupListeners() {
     // For messages that arrive while the app is in the foreground
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      MyLogger.green('Got a message whilst in the foreground!');
-      // Here you could show a local notification to make sure the user sees it
+      MyLogger.yellow('Got a message whilst in the foreground!');
+      final chatId = message.data['chatId'];
+      if (chatId != null && chatId is String) {
+        MyLogger.cyan('New message for chat ID: $chatId. Broadcasting...');
+        _newMessageController.add(chatId);
+      }
     });
 
     // For messages that are tapped when the app is in the background or terminated
@@ -65,5 +75,9 @@ class NotificationService {
 
     // For handling messages when the app is terminated
     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+  }
+
+  void dispose() {
+    _newMessageController.close();
   }
 }
