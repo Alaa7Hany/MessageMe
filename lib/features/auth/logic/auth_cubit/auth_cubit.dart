@@ -3,7 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:message_me/core/services/dependency_injection_service.dart';
-import '../../../../core/firebase/notification_service.dart';
+import '../../../../core/services/notification_service.dart';
 import '../../../../core/helpers/my_logger.dart';
 import '../../../../core/models/user_model.dart';
 

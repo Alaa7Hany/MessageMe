@@ -3,7 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:get_it/get_it.dart';
-import 'package:message_me/core/firebase/notification_service.dart';
+import 'package:message_me/core/services/notification_service.dart';
 import '../firebase/auth_service.dart';
 import 'media_service.dart';
 import '../../features/auth/data/repo/auth_repo.dart';
