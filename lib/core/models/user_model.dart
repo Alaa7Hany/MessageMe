@@ -24,6 +24,9 @@ class UserModel {
   @JsonKey(name: FirebaseKeys.isOnline)
   final bool isOnline;
 
+  @JsonKey(name: FirebaseKeys.fcmToken)
+  final String? fcmToken;
+
   UserModel({
     required this.uid,
     required this.name,
@@ -32,6 +35,7 @@ class UserModel {
     required this.imageUrl,
     required this.lastActive,
     this.isOnline = false,
+    this.fcmToken,
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) =>

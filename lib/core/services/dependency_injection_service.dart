@@ -1,7 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:get_it/get_it.dart';
+import 'package:message_me/core/services/notification_service.dart';
 import '../firebase/auth_service.dart';
 import 'media_service.dart';
 import '../../features/auth/data/repo/auth_repo.dart';
@@ -21,6 +23,7 @@ Future<void> setupGetIt() async {
   final FirebaseFirestore firestore = FirebaseFirestore.instance;
   final FirebaseStorage firebaseStorage = FirebaseStorage.instance;
   final MediaService mediaService = MediaService();
+  final FirebaseMessaging firebaseMessaging = FirebaseMessaging.instance;
   // Services
   getIt.registerLazySingleton<AuthService>(() => AuthService(firebaseAuth));
   getIt.registerLazySingleton<DatabaseService>(
@@ -30,6 +33,9 @@ Future<void> setupGetIt() async {
     () => StorageService(firebaseStorage),
   );
   getIt.registerLazySingleton<MediaService>(() => mediaService);
+  getIt.registerLazySingleton<NotificationService>(
+    () => NotificationService(firebaseMessaging, getIt()),
+  );
 
   // Repos
   getIt.registerLazySingleton<AuthRepo>(

@@ -2,6 +2,8 @@ import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:message_me/core/services/dependency_injection_service.dart';
+import '../../../../core/services/notification_service.dart';
 import '../../../../core/helpers/my_logger.dart';
 import '../../../../core/models/user_model.dart';
 
@@ -23,6 +25,19 @@ class AuthCubit extends Cubit<AuthState> {
 
   static AuthCubit get(BuildContext context) => BlocProvider.of(context);
 
+  Future<void> _initializeNotifications(String userId) async {
+    try {
+      final notificationService = getIt<NotificationService>();
+      await notificationService.initNotifications();
+      await notificationService.saveTokenToDatabase(userId);
+      MyLogger.green(
+        "Notification service initialized and token saved for user: $userId",
+      );
+    } catch (e) {
+      MyLogger.red("Failed to initialize notification service: $e");
+    }
+  }
+
   void setupAuthStateListener() {
     emit(AuthLoading());
     _authRepo.setupAuthStateListener((user) async {
@@ -38,6 +53,8 @@ class AuthCubit extends Cubit<AuthState> {
             currentUser = userModel;
             emit(AuthLoginSuccess("Login Successful"));
             MyLogger.cyan("Current User: ${userModel.name}");
+
+            await _initializeNotifications(user.uid);
           } else {
             await logout();
             MyLogger.red("Error: User data not found, logging out.");
@@ -102,6 +119,7 @@ class AuthCubit extends Cubit<AuthState> {
         currentUser = userModel;
         emit(AuthLoginSuccess("Registration Successful"));
         MyLogger.cyan("New User Registered & Logged In: ${userModel.name}");
+        await _initializeNotifications(uid);
       } else {
         emit(AuthError("Registration failed"));
         MyLogger.red("Error: UID is null after registration");
