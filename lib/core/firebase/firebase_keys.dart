@@ -18,6 +18,7 @@ class FirebaseKeys {
   static const String lastActive = 'last_active';
   static const String isOnline = 'is_online';
   static const String nameToLowercase = 'name_to_lowercase';
+  static const String fcmToken = 'fcm_token';
 
   // Chat Model Keys
   static const String isGroup = 'is_group';

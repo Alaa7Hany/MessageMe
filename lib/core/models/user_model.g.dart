@@ -16,6 +16,7 @@ UserModel _$UserModelFromJson(Map<String, dynamic> json) => UserModel(
     json['last_active'],
   ),
   isOnline: json['is_online'] as bool? ?? false,
+  fcmToken: json['fcm_token'] as String?,
 );
 
 Map<String, dynamic> _$UserModelToJson(UserModel instance) => <String, dynamic>{
@@ -28,4 +29,5 @@ Map<String, dynamic> _$UserModelToJson(UserModel instance) => <String, dynamic>{
     instance.lastActive,
   ),
   'is_online': instance.isOnline,
+  'fcm_token': instance.fcmToken,
 };
