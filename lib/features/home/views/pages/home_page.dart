@@ -83,7 +83,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         //   create: (context) => ChatsCubit(getIt<ChatsRepo>())..loadChats(),
         // ),
         BlocProvider(
-          create: (context) => FindUsersCubit(getIt<FindUsersRepo>()),
+          create: (context) =>
+              FindUsersCubit(getIt<FindUsersRepo>())..loadInitialUsers(),
         ),
         BlocProvider(
           create: (context) =>

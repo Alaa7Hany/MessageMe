@@ -2,12 +2,14 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:intl/intl.dart';
+
+import '../../../../core/services/dependency_injection_service.dart';
+import '../../../../core/services/download_service.dart';
+import '../../../../core/utils/app_colors.dart';
 import '../../../../core/utils/app_text_styles.dart';
 import '../../../../core/widgets/rounded_image.dart';
 import '../../data/models/message_model.dart';
-import 'package:intl/intl.dart';
-
-import '../../../../core/utils/app_colors.dart';
 
 class MessageBubble extends StatelessWidget {
   final MessageModel message;
@@ -23,7 +25,6 @@ class MessageBubble extends StatelessWidget {
   Widget build(BuildContext context) {
     final bool isSender = currentId == message.senderUid;
 
-    // Define colors based on the sender
     final bubbleColor = isSender
         ? (message.status == MessageStatus.failed
               ? AppColors.error.withAlpha(60)
@@ -38,10 +39,8 @@ class MessageBubble extends StatelessWidget {
         ? AppColors.appBarBackground
         : AppColors.secondaryTextColor;
 
-    // Format the timestamp
     final String formattedTime = DateFormat('hh:mm a').format(message.timeSent);
 
-    // Build the message bubble widget
     final bubble = Stack(
       children: [
         Container(
@@ -84,24 +83,30 @@ class MessageBubble extends StatelessWidget {
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(12.r),
                         child: message.status == MessageStatus.sent
-                            ? Image.network(message.content, fit: BoxFit.cover)
+                            ? InkWell(
+                                onTap: () =>
+                                    _showImageOptions(context, message.content),
+                                child: Image.network(
+                                  message.content,
+                                  fit: BoxFit.cover,
+                                ),
+                              )
                             : Image.file(File(message.content)),
                       ),
                     ),
               SizedBox(height: 5.h),
               Row(
                 children: [
-                  message.status != MessageStatus.sent
-                      ? Align(
-                          alignment: Alignment.centerLeft,
-                          child: Text(
-                            message.status.name,
-                            style: AppTextStyles.f12w400secondary().copyWith(
-                              color: timeColor,
-                            ),
-                          ),
-                        )
-                      : SizedBox.shrink(),
+                  if (message.status != MessageStatus.sent)
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        message.status.name,
+                        style: AppTextStyles.f12w400secondary().copyWith(
+                          color: timeColor,
+                        ),
+                      ),
+                    ),
                   Expanded(
                     child: Align(
                       alignment: Alignment.centerRight,
@@ -124,14 +129,11 @@ class MessageBubble extends StatelessWidget {
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 4.h),
       child: Row(
-        // Align content to the start (left) or end (right) of the Row
         mainAxisAlignment: isSender
             ? MainAxisAlignment.end
             : MainAxisAlignment.start,
-        // Align the bottom of the avatar with the bottom of the bubble
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          // Show the avatar ONLY if the message is from the other person
           if (!isSender) ...[
             RoundedImageNetwork(radius: 20, imageUrl: message.senderImage),
             SizedBox(width: 8.w),
@@ -139,6 +141,72 @@ class MessageBubble extends StatelessWidget {
           bubble,
         ],
       ),
+    );
+  }
+
+  void _showImageOptions(BuildContext context, String imageUrl) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: AppColors.appBarBackground,
+      builder: (bottomSheetContext) {
+        return SafeArea(
+          child: Wrap(
+            children: [
+              ListTile(
+                leading: const Icon(
+                  Icons.download,
+                  color: AppColors.accentColor,
+                ),
+                title: Text(
+                  'Download Image',
+                  style: AppTextStyles.f16w400primary(),
+                ),
+                onTap: () async {
+                  // Capture the messenger and navigator using the valid bottomSheetContext
+                  final scaffoldMessenger = ScaffoldMessenger.of(
+                    bottomSheetContext,
+                  );
+                  final navigator = Navigator.of(bottomSheetContext);
+
+                  // First, pop the bottom sheet
+                  navigator.pop();
+
+                  // Now, show the "Downloading..." message
+                  scaffoldMessenger.showSnackBar(
+                    const SnackBar(content: Text('Downloading image...')),
+                  );
+
+                  // Perform the download
+                  final downloadService = getIt<DownloadService>();
+                  final success = await downloadService.downloadAndSaveImage(
+                    imageUrl,
+                  );
+
+                  // Hide the "Downloading..." message
+                  scaffoldMessenger.hideCurrentSnackBar();
+
+                  // Show the final result
+                  if (success) {
+                    scaffoldMessenger.showSnackBar(
+                      const SnackBar(
+                        content: Text('Image saved to gallery!'),
+                        backgroundColor: Colors.green,
+                      ),
+                    );
+                  } else {
+                    scaffoldMessenger.showSnackBar(
+                      const SnackBar(
+                        content: Text('Failed to save image.'),
+                        backgroundColor: Colors.redAccent,
+                      ),
+                    );
+                  }
+                },
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

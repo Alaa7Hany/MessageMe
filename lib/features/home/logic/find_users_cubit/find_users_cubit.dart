@@ -14,7 +14,6 @@ class FindUsersCubit extends Cubit<FindUsersState> {
   final FindUsersRepo _findUsersRepo;
 
   FindUsersCubit(this._findUsersRepo) : super(FindUsersInitial()) {
-    _loadInitialUsersPage();
     _setupScrollListener();
     searchFieldController.addListener(_onSearchChanged);
   }
@@ -62,7 +61,7 @@ class FindUsersCubit extends Cubit<FindUsersState> {
       final query = searchFieldController.text.trim();
       if (query.isEmpty) {
         // If search is cleared, reload the initial paginated list
-        _loadInitialUsersPage(isHardRefresh: false);
+        loadInitialUsers(isHardRefresh: false);
       } else {
         _performSearch(query);
       }
@@ -113,7 +112,9 @@ class FindUsersCubit extends Cubit<FindUsersState> {
     emit(FindUsersLoaded(_users, _hasMoreUsers, selectedUsers: _selectedUsers));
   }
 
-  void _loadInitialUsersPage({bool isHardRefresh = true}) async {
+  void loadInitialUsers({bool isHardRefresh = true}) async {
+    if (state is FindUsersLoading) return;
+
     _users.clear();
     _lastUser = null;
     _hasMoreUsers = true;
@@ -149,7 +150,10 @@ class FindUsersCubit extends Cubit<FindUsersState> {
       MyLogger.yellow('Loaded initial users: ${_users.length}');
     } catch (e) {
       MyLogger.red('Error loading users: $e');
-      emit(FindUsersError(e.toString()));
+      if (!isClosed) {
+        // Add a check before emitting
+        emit(FindUsersError(e.toString()));
+      }
     }
   }
 

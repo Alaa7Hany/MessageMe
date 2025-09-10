@@ -7,6 +7,7 @@ import 'package:message_me/core/services/notification_service.dart';
 import '../../features/home/logic/chats_cubit/chats_cubit.dart';
 import '../firebase/auth_service.dart';
 import '../routing/navigation_service.dart';
+import 'download_service.dart';
 import 'media_service.dart';
 import '../../features/auth/data/repo/auth_repo.dart';
 import '../../features/home/data/repo/find_users_repo.dart';
@@ -38,6 +39,7 @@ Future<void> setupGetIt() async {
   getIt.registerLazySingleton<NotificationService>(
     () => NotificationService(firebaseMessaging, getIt()),
   );
+  getIt.registerLazySingleton<DownloadService>(() => DownloadService());
 
   getIt.registerLazySingleton<NavigationService>(() => NavigationService());
 
