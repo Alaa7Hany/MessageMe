@@ -107,4 +107,40 @@ class ChatsRepo {
       rethrow;
     }
   }
+
+  Future<ChatModel?> getChatById(String chatId) async {
+    try {
+      final docSnapshot = await _databaseService.getDocument(
+        path: '${FirebaseKeys.chatsCollection}/$chatId',
+      );
+
+      if (docSnapshot.exists) {
+        final chatData = docSnapshot.data() as Map<String, dynamic>;
+        final chat = ChatModel.fromJson(chatData);
+        chat.uid = docSnapshot.id;
+
+        chat.membersModels = await _getChatMembers(chat.uid, chat.membersIds);
+        return chat;
+      }
+      return null;
+    } catch (e) {
+      MyLogger.red('Error fetching chat by ID: $e');
+      return null;
+    }
+  }
+
+  Future<void> resetUnreadCount(String chatId, String userId) async {
+    try {
+      // Use dot notation to update a specific field within the unread_counts map.
+      await _databaseService.updateData(
+        path: '${FirebaseKeys.chatsCollection}/$chatId',
+        data: {'${FirebaseKeys.unreadCounts}.$userId': 0},
+      );
+      MyLogger.cyan('Reset unread count for user $userId in chat $chatId');
+    } catch (e) {
+      MyLogger.red('Error resetting unread count: $e');
+      // We don't rethrow here because failing to mark as read is not a critical
+      // failure that should stop the user from viewing messages.
+    }
+  }
 }

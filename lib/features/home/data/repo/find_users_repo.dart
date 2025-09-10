@@ -114,6 +114,11 @@ class FindUsersRepo {
       else {
         MyLogger.yellow('No existing chat found. Creating a new one...');
 
+        //  Create an initial unread_counts map with all members set to 0.
+        final Map<String, int> initialUnreadCounts = {
+          for (var memberId in allMemberIds) memberId: 0,
+        };
+
         // 1. Define the base data for the chat.
         final Map<String, dynamic> baseChatData = {
           FirebaseKeys.members: allMemberIds,
@@ -122,6 +127,7 @@ class FindUsersRepo {
           FirebaseKeys.lastMessageType: '',
           FirebaseKeys.imageUrl: '',
           FirebaseKeys.isGroup: selectedUsers.length > 1,
+          FirebaseKeys.unreadCounts: initialUnreadCounts,
         };
 
         // 2. Send the data to Firestore using the server timestamp instruction.

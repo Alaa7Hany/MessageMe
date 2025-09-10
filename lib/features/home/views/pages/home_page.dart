@@ -76,9 +76,9 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     // MyLogger.bgMagenta('HomePage, Building HomePage');
     return MultiBlocProvider(
       providers: [
-        BlocProvider<ChatsCubit>(
-          create: (context) => ChatsCubit(getIt<ChatsRepo>())..loadChats(),
-        ),
+        // BlocProvider<ChatsCubit>(
+        //   create: (context) => ChatsCubit(getIt<ChatsRepo>())..loadChats(),
+        // ),
         BlocProvider(
           create: (context) => FindUsersCubit(getIt<FindUsersRepo>()),
         ),

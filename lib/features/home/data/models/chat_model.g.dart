@@ -19,6 +19,11 @@ ChatModel _$ChatModelFromJson(Map<String, dynamic> json) => ChatModel(
   imageUrl: json['image_url'] as String?,
   lastMessageContent: json['last_message_content'] as String?,
   lastMessageType: json['last_message_type'] as String?,
+  unreadCounts:
+      (json['unread_counts'] as Map<String, dynamic>?)?.map(
+        (k, e) => MapEntry(k, (e as num).toInt()),
+      ) ??
+      const {},
 );
 
 Map<String, dynamic> _$ChatModelToJson(ChatModel instance) => <String, dynamic>{
@@ -32,4 +37,5 @@ Map<String, dynamic> _$ChatModelToJson(ChatModel instance) => <String, dynamic>{
   'last_active': const TimestampToDateTimeConverter().toJson(
     instance.lastActive,
   ),
+  'unread_counts': instance.unreadCounts,
 };

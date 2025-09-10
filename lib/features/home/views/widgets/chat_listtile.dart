@@ -16,7 +16,7 @@ class ChatListtile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final String currentUid = getIt<AuthCubit>().currentUser!.uid;
-    final bool hasUnread = chatModel.hasUnreadMessage;
+    final bool hasUnread = (chatModel.unreadCounts[currentUid] ?? 0) > 0;
     return ListTile(
       leading: Stack(
         children: [
@@ -73,11 +73,17 @@ class ChatListtile extends StatelessWidget {
           if (hasUnread) ...[
             SizedBox(width: 8.w),
             Container(
-              height: 10.r,
-              width: 10.r,
+              height: 30.r,
+              width: 30.r,
               decoration: BoxDecoration(
                 color: AppColors.accentColor,
                 shape: BoxShape.circle,
+              ),
+              child: Center(
+                child: Text(
+                  '${chatModel.unreadCounts[currentUid]}',
+                  style: AppTextStyles.f12w400primary(),
+                ),
               ),
             ),
           ],

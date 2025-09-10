@@ -1,44 +1,40 @@
 import 'dart:async';
-
 import 'package:flutter_bloc/flutter_bloc.dart';
-
 import '../../../../core/helpers/my_logger.dart';
-import '../../../../core/services/notification_service.dart';
 import '../../../auth/logic/auth_cubit/auth_cubit.dart';
-import '../../data/models/chat_model.dart';
 import '../../data/repo/chats_repo.dart';
-
 import '../../../../core/services/dependency_injection_service.dart';
 import 'chats_state.dart';
 
 class ChatsCubit extends Cubit<ChatsState> {
   final ChatsRepo _chatsRepo;
   final AuthCubit _authCubit = getIt<AuthCubit>();
-  final NotificationService _notificationService = getIt<NotificationService>();
 
   StreamSubscription? _chatStream;
-  StreamSubscription? _notificationStream;
 
-  ChatsCubit(this._chatsRepo) : super(ChatsInitial()) {
-    _listenForNewMessages();
-  }
+  ChatsCubit(this._chatsRepo) : super(ChatsInitial());
 
   @override
   Future<void> close() {
     _chatStream?.cancel();
-    _notificationStream?.cancel();
     return super.close();
   }
 
   void loadChats() async {
-    emit(ChatsLoading());
+    // This check is important. We only load chats if a user is logged in.
     final String? uid = _authCubit.currentUser?.uid;
     if (uid == null) {
-      MyLogger.red('User is not logged in to load chats');
+      // Don't emit loading, just return silently.
+      // The UI will show 'No messages yet' or a similar state.
       return;
     }
-    // Cancel any previous subscription to avoid multiple listeners
-    _chatStream?.cancel();
+
+    // Only show the full loading spinner on the first load.
+    if (state is! ChatsLoaded) {
+      emit(ChatsLoading());
+    }
+
+    _chatStream?.cancel(); // Cancel previous subscription to avoid leaks.
 
     try {
       _chatStream = _chatsRepo
@@ -46,7 +42,6 @@ class ChatsCubit extends Cubit<ChatsState> {
           .listen(
             (chats) {
               emit(ChatsLoaded(chats));
-              // MyLogger.green('Loaded Chats: ${chats.length}');
             },
             onError: (error) {
               emit(ChatsError('Failed to load chats'));
@@ -59,52 +54,14 @@ class ChatsCubit extends Cubit<ChatsState> {
     }
   }
 
-  void _listenForNewMessages() {
-    _notificationStream = _notificationService.newMessageStream.listen((
-      chatId,
-    ) {
-      MyLogger.cyan(
-        'ChatsCubit received new message notification for chat: $chatId',
-      );
-
-      // Check if the current state has chats loaded
-      if (state is ChatsLoaded) {
-        final currentState = state as ChatsLoaded;
-        final List<ChatModel> currentChats = List.from(currentState.chats);
-
-        // Find the index of the chat to update
-        final int chatIndex = currentChats.indexWhere(
-          (chat) => chat.uid == chatId,
-        );
-
-        if (chatIndex != -1) {
-          // Create a new instance of the chat model with the unread flag
-          currentChats[chatIndex] = currentChats[chatIndex].copyWith(
-            hasUnreadMessage: true,
-          );
-
-          // Emit a new state with the updated list to trigger a UI rebuild
-          emit(ChatsLoaded(currentChats));
-        }
-      }
-    });
-  }
-
   void markChatAsRead(String chatId) {
-    if (state is ChatsLoaded) {
-      final currentState = state as ChatsLoaded;
-      final List<ChatModel> currentChats = List.from(currentState.chats);
-      final int chatIndex = currentChats.indexWhere(
-        (chat) => chat.uid == chatId,
-      );
+    // We get the current user's ID.
+    final String? uid = _authCubit.currentUser?.uid;
+    if (uid == null) return;
 
-      // Only update if it was marked as unread
-      if (chatIndex != -1 && currentChats[chatIndex].hasUnreadMessage) {
-        currentChats[chatIndex] = currentChats[chatIndex].copyWith(
-          hasUnreadMessage: false,
-        );
-        emit(ChatsLoaded(currentChats));
-      }
-    }
+    // We don't need to check the local state. We just tell the repository
+    // to reset the count in the database. The real-time stream from `loadChats`
+    // will automatically update the UI with the new data from Firestore.
+    _chatsRepo.resetUnreadCount(chatId, uid);
   }
 }

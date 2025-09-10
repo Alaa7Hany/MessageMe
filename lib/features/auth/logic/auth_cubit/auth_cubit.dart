@@ -1,5 +1,6 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:message_me/core/services/dependency_injection_service.dart';
@@ -7,6 +8,7 @@ import '../../../../core/services/notification_service.dart';
 import '../../../../core/helpers/my_logger.dart';
 import '../../../../core/models/user_model.dart';
 
+import '../../../home/logic/chats_cubit/chats_cubit.dart';
 import '../../data/repo/auth_repo.dart';
 import 'auth_state.dart';
 
@@ -17,10 +19,11 @@ class AuthCubit extends Cubit<AuthState> {
   bool _isRegistering = false;
 
   UserModel? currentUser;
+  RemoteMessage? _initialMessageFromTerminatedState;
 
   AuthCubit(this._authRepo) : super(AuthInitial()) {
-    // logout();
     setupAuthStateListener();
+    _checkForInitialMessage();
   }
 
   static AuthCubit get(BuildContext context) => BlocProvider.of(context);
@@ -53,6 +56,28 @@ class AuthCubit extends Cubit<AuthState> {
             currentUser = userModel;
             emit(AuthLoginSuccess("Login Successful"));
             MyLogger.cyan("Current User: ${userModel.name}");
+            // get Chats once user is initialized
+            getIt<ChatsCubit>().loadChats();
+
+            //  Check if we have a message from a terminated state
+            if (_initialMessageFromTerminatedState != null) {
+              final notificationService = getIt<NotificationService>();
+              final message = _initialMessageFromTerminatedState!;
+
+              // Manually trigger the unread UI update
+              final chatId = message.data['chatId'];
+              if (chatId != null && chatId is String) {
+                notificationService.broadcastNewMessage(chatId);
+              }
+
+              // Trigger navigation now that the UI is ready
+              Future.delayed(Duration.zero, () {
+                notificationService.handleMessageNavigation(message);
+              });
+
+              // Clear the message so it doesn't run again
+              _initialMessageFromTerminatedState = null;
+            }
 
             await _initializeNotifications(user.uid);
           } else {
@@ -165,5 +190,11 @@ class AuthCubit extends Cubit<AuthState> {
         MyLogger.red("Error updating online status: $e");
       }
     }
+  }
+
+  Future<void> _checkForInitialMessage() async {
+    MyLogger.yellow('App opened from terminated state by a notification.');
+    _initialMessageFromTerminatedState = await FirebaseMessaging.instance
+        .getInitialMessage();
   }
 }

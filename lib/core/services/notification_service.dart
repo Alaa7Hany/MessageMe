@@ -6,6 +6,12 @@ import 'package:message_me/core/firebase/database_service.dart';
 import 'package:message_me/core/firebase/firebase_keys.dart';
 import 'package:message_me/core/helpers/my_logger.dart';
 
+import '../../features/home/data/models/chat_model.dart';
+import '../../features/home/data/repo/chats_repo.dart';
+import '../routing/navigation_service.dart';
+import '../routing/routes.dart';
+import 'dependency_injection_service.dart';
+
 // This handler must be a top-level function (outside of any class)
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -20,6 +26,9 @@ class NotificationService {
   // StreamController to broadcast the chatId
   final _newMessageController = StreamController<String>.broadcast();
   Stream<String> get newMessageStream => _newMessageController.stream;
+  void broadcastNewMessage(String chatId) {
+    _newMessageController.add(chatId);
+  }
 
   NotificationService(this._fcm, this._databaseService);
 
@@ -63,18 +72,50 @@ class NotificationService {
       final chatId = message.data['chatId'];
       if (chatId != null && chatId is String) {
         MyLogger.cyan('New message for chat ID: $chatId. Broadcasting...');
-        _newMessageController.add(chatId);
+        broadcastNewMessage(chatId);
       }
     });
 
     // For messages that are tapped when the app is in the background or terminated
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-      MyLogger.green('A new onMessageOpenedApp event was published!');
-      // TODO: Handle navigation to the specific chat screen
+      MyLogger.yellow('A new onMessageOpenedApp event was published!');
+
+      // Broadcast the message for the UI update (unread marker)
+      final chatId = message.data['chatId'];
+      if (chatId != null && chatId is String) {
+        broadcastNewMessage(chatId);
+      }
+
+      // Handle the navigation
+      handleMessageNavigation(message);
     });
 
     // For handling messages when the app is terminated
     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+  }
+
+  Future<void> handleMessageNavigation(RemoteMessage message) async {
+    final chatId = message.data['chatId'];
+    if (chatId == null || chatId is! String) {
+      MyLogger.red('Notification data did not contain a valid chatId.');
+      return;
+    }
+
+    MyLogger.cyan('Handling navigation for chat ID: $chatId');
+
+    // Use GetIt to get instances of your repo and navigation service
+    final chatsRepo = getIt<ChatsRepo>();
+    final navigationService = getIt<NavigationService>();
+
+    // Fetch the full chat model using the ID
+    final ChatModel? chatModel = await chatsRepo.getChatById(chatId);
+
+    if (chatModel != null) {
+      // Use the navigation service to push the route
+      navigationService.pushNamed(Routes.messages, arguments: chatModel);
+    } else {
+      MyLogger.red('Could not find chat with ID: $chatId to navigate.');
+    }
   }
 
   void dispose() {

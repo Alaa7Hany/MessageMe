@@ -43,6 +43,9 @@ class ChatModel {
   @JsonKey(includeFromJson: false, includeToJson: false)
   bool hasUnreadMessage;
 
+  @JsonKey(name: FirebaseKeys.unreadCounts)
+  final Map<String, int> unreadCounts;
+
   ChatModel({
     this.uid = '',
     required this.name,
@@ -55,6 +58,7 @@ class ChatModel {
     this.lastMessageContent,
     this.lastMessageType,
     this.hasUnreadMessage = false,
+    this.unreadCounts = const {},
   });
 
   factory ChatModel.fromJson(Map<String, dynamic> json) =>
@@ -74,6 +78,7 @@ class ChatModel {
     DateTime? createdAt,
     DateTime? lastActive,
     bool? hasUnreadMessage,
+    Map<String, int>? unreadCounts,
   }) {
     return ChatModel(
       uid: uid ?? this.uid,
@@ -87,6 +92,7 @@ class ChatModel {
       createdAt: createdAt ?? this.createdAt,
       lastActive: lastActive ?? this.lastActive,
       hasUnreadMessage: hasUnreadMessage ?? this.hasUnreadMessage,
+      unreadCounts: unreadCounts ?? this.unreadCounts,
     );
   }
 }

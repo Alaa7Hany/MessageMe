@@ -4,7 +4,9 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:get_it/get_it.dart';
 import 'package:message_me/core/services/notification_service.dart';
+import '../../features/home/logic/chats_cubit/chats_cubit.dart';
 import '../firebase/auth_service.dart';
+import '../routing/navigation_service.dart';
 import 'media_service.dart';
 import '../../features/auth/data/repo/auth_repo.dart';
 import '../../features/home/data/repo/find_users_repo.dart';
@@ -37,6 +39,8 @@ Future<void> setupGetIt() async {
     () => NotificationService(firebaseMessaging, getIt()),
   );
 
+  getIt.registerLazySingleton<NavigationService>(() => NavigationService());
+
   // Repos
   getIt.registerLazySingleton<AuthRepo>(
     () => AuthRepo(getIt(), getIt(), getIt(), getIt()),
@@ -50,4 +54,5 @@ Future<void> setupGetIt() async {
   // Cubits
   getIt.registerLazySingleton<AuthCubit>(() => AuthCubit(getIt()));
   getIt.registerLazySingleton<ConnectivityCubit>(() => ConnectivityCubit());
+  getIt.registerLazySingleton<ChatsCubit>(() => ChatsCubit(getIt()));
 }
