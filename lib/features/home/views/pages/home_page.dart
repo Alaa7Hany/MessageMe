@@ -12,7 +12,6 @@ import '../../../auth/data/repo/auth_repo.dart';
 import '../../../auth/logic/auth_cubit/auth_state.dart';
 import '../../data/repo/chats_repo.dart';
 import '../../data/repo/find_users_repo.dart';
-import '../../logic/chats_cubit/chats_cubit.dart';
 import '../../logic/find_users_cubit/find_users_cubit.dart';
 import '../../logic/settings_cubit/settings_cubit.dart';
 import 'chats_page.dart';

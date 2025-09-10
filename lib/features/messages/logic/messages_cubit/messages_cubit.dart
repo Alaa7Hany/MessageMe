@@ -1,17 +1,14 @@
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:uuid/uuid.dart';
 
 import '../../../../core/helpers/my_logger.dart';
 import '../../../../core/models/user_model.dart';
 import '../../../../core/services/dependency_injection_service.dart';
 import '../../../auth/logic/auth_cubit/auth_cubit.dart';
 import '../../../home/data/models/chat_model.dart';
-import '../../../home/logic/chats_cubit/chats_cubit.dart';
 import '../../data/models/message_model.dart';
 import '../../data/repo/messages_repo.dart';
 import '../services/message_sending_service.dart';

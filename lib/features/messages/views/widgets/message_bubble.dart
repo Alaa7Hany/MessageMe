@@ -6,7 +6,6 @@ import '../../../../core/services/dependency_injection_service.dart';
 import '../../../../core/services/download_service.dart';
 import '../../../../core/utils/app_colors.dart';
 import '../../../../core/utils/app_text_styles.dart';
-import '../../../../core/widgets/my_snackbar.dart';
 import '../../../../core/widgets/rounded_image.dart';
 import '../../data/models/message_model.dart';
 import '../../logic/messages_cubit/messages_cubit.dart';
