@@ -11,14 +11,13 @@ import '../../../../core/models/user_model.dart';
 import '../../../../core/services/dependency_injection_service.dart';
 import '../../../auth/logic/auth_cubit/auth_cubit.dart';
 import '../../../home/data/models/chat_model.dart';
+import '../../../home/logic/chats_cubit/chats_cubit.dart';
 import '../../data/models/message_model.dart';
 import '../../data/repo/messages_repo.dart';
-// IMPORT THE NEW SERVICE
 import '../services/message_sending_service.dart';
 import 'messages_state.dart';
 
 class MessagesCubit extends Cubit<MessagesState> {
-  // --- All original properties are kept ---
   final List<MessageModel> _messages = [];
   DocumentSnapshot? _lastMessageDoc;
   bool _hasMoreMessages = true;
@@ -53,6 +52,7 @@ class MessagesCubit extends Cubit<MessagesState> {
     _messagesSubscription?.cancel();
     messageController.dispose();
     messagesListViewController.dispose();
+
     return super.close();
   }
 

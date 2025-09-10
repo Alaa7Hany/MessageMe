@@ -24,7 +24,10 @@ extension ChatModelPresenter on ChatModel {
   /// Gets the subtitle, which is the content of the last message.
   String get subtitle {
     if (lastMessageContent != null && lastMessageContent!.isNotEmpty) {
-      return lastMessageType == 'text' ? lastMessageContent! : 'Media message';
+      final content = lastMessageType == 'text'
+          ? lastMessageContent!
+          : 'Media message';
+      return content;
     }
     return 'No messages yet';
   }

@@ -1,6 +1,6 @@
 const { onDocumentCreated } = require("firebase-functions/v2/firestore");
 const { initializeApp } = require("firebase-admin/app");
-const { getFirestore } = require("firebase-admin/firestore");
+const { getFirestore, FieldValue } = require("firebase-admin/firestore");
 const { getMessaging } = require("firebase-admin/messaging");
 
 initializeApp();
@@ -24,6 +24,18 @@ exports.sendNewMessageNotification = onDocumentCreated(
         const chatData = chatDocSnap.data();
         const members = chatData.members;
 
+        const unreadCountsUpdate = {};
+        members.forEach((memberUid) => {
+            if (memberUid !== senderUid) {
+                unreadCountsUpdate[`unread_counts.${memberUid}`] = FieldValue.increment(1);
+            }
+        });
+
+        if (Object.keys(unreadCountsUpdate).length > 0) {
+            await chatDocRef.update(unreadCountsUpdate);
+            console.log(`Updated unread counts for chat ${chatId}`);
+        }
+
         const userPromises = members.map((uid) =>
             firestore.collection("Users").doc(uid).get(),
         );
@@ -38,11 +50,29 @@ exports.sendNewMessageNotification = onDocumentCreated(
             return;
         }
 
+        let notificationBody = '';
+        if (messageData.type === 'image') {
+            notificationBody = '📷 Attachment';
+        } else {
+            notificationBody = messageData.content;
+        }
+
         const payload = {
             notification: {
-                title: `New message from ${messageData.sender_name}`,
-                body: messageData.content,
-
+                title: `${messageData.sender_name}`,
+                body: notificationBody,
+            },
+            android: {
+                notification: {
+                    sound: "default",
+                },
+            },
+            apns: {
+                payload: {
+                    aps: {
+                        sound: "default",
+                    },
+                },
             },
             data: {
                 chatId: chatId,
@@ -52,8 +82,6 @@ exports.sendNewMessageNotification = onDocumentCreated(
         const tokens = recipients.map((doc) => doc.data().fcm_token);
         console.log(`Sending notification to tokens: ${tokens}`);
 
-        // --- THE FINAL FIX: Send messages individually ---
-        // This is more robust than sending as a single batch.
         try {
             for (const token of tokens) {
                 await getMessaging().send({

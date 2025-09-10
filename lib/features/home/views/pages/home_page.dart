@@ -58,16 +58,19 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
     switch (state) {
       case AppLifecycleState.resumed:
-        // App is in the foreground and interactive.
+        // The app has come to the foreground.
         authCubit.updateUserStatus(true);
+        break;
+      case AppLifecycleState.detached:
+        // The app is being closed.
+        authCubit.updateUserStatus(false);
         break;
       case AppLifecycleState.inactive:
       case AppLifecycleState.paused:
-      case AppLifecycleState.detached:
-        // App is backgrounded, closed, or otherwise not active.
-        authCubit.updateUserStatus(false);
-        break;
       case AppLifecycleState.hidden:
+        // The app is in the background, but not closed. Do nothing.
+        // The user should still be considered "online".
+        break;
     }
   }
 
@@ -76,9 +79,9 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     // MyLogger.bgMagenta('HomePage, Building HomePage');
     return MultiBlocProvider(
       providers: [
-        BlocProvider<ChatsCubit>(
-          create: (context) => ChatsCubit(getIt<ChatsRepo>())..loadChats(),
-        ),
+        // BlocProvider<ChatsCubit>(
+        //   create: (context) => ChatsCubit(getIt<ChatsRepo>())..loadChats(),
+        // ),
         BlocProvider(
           create: (context) => FindUsersCubit(getIt<FindUsersRepo>()),
         ),
@@ -97,17 +100,14 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
               _currentPage = value;
             });
           },
-          items: [
+          items: const [
+            BottomNavigationBarItem(icon: Icon(Icons.chat), label: 'Chats'),
             BottomNavigationBarItem(
-              icon: const Icon(Icons.chat),
-              label: 'Chats',
-            ),
-            BottomNavigationBarItem(
-              icon: const Icon(Icons.supervised_user_circle),
+              icon: Icon(Icons.supervised_user_circle),
               label: 'Users',
             ),
             BottomNavigationBarItem(
-              icon: const Icon(Icons.settings),
+              icon: Icon(Icons.settings),
               label: 'Settings',
             ),
           ],

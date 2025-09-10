@@ -3,6 +3,7 @@ import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'core/routing/navigation_service.dart';
 import 'core/services/connectivity_cubit/connectivity_cubit.dart';
 import 'core/services/dependency_injection_service.dart';
 import 'core/utils/app_themes.dart';
@@ -12,6 +13,7 @@ import 'features/auth/views/pages/auth_wrapper_page.dart';
 
 import 'core/services/connectivity_cubit/connectivity_state.dart';
 import 'core/routing/app_router.dart';
+import 'features/home/logic/chats_cubit/chats_cubit.dart';
 import 'firebase_options.dart';
 
 void main() async {
@@ -40,6 +42,7 @@ class MyApp extends StatelessWidget {
         providers: [
           BlocProvider.value(value: getIt<AuthCubit>()),
           BlocProvider.value(value: getIt<ConnectivityCubit>()),
+          BlocProvider.value(value: getIt<ChatsCubit>()),
         ],
         child: MaterialApp(
           debugShowCheckedModeBanner: false,
@@ -66,7 +69,7 @@ class MyApp extends StatelessWidget {
             },
             child: AuthWrapper(),
           ),
-
+          navigatorKey: getIt<NavigationService>().navigatorKey,
           // initialRoute: Routes.authWrapper,
           onGenerateRoute: appRouter.generateRoute,
         ),

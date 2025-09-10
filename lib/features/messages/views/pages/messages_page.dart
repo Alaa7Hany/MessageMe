@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/utils/app_text_styles.dart';
 import '../../../../core/widgets/my_snackbar.dart';
+import '../../../home/logic/chats_cubit/chats_cubit.dart';
 import '../widgets/message_bubble.dart';
 import '../widgets/send_message_field.dart';
 
@@ -24,7 +25,11 @@ class MessagesPage extends StatelessWidget {
     late final MessagesCubit cubit;
     final String currentId = AuthCubit.get(context).currentUser!.uid;
     return BlocProvider(
-      create: (context) => MessagesCubit(getIt(), chatModel),
+      create: (context) {
+        context.read<ChatsCubit>().markChatAsRead(chatModel.uid);
+
+        return MessagesCubit(getIt(), chatModel);
+      },
       child: Builder(
         builder: (context) {
           cubit = MessagesCubit.get(context);

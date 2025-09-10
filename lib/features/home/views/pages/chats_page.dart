@@ -33,14 +33,18 @@ class ChatsPage extends StatelessWidget {
                         ? ListView.builder(
                             itemCount: state.chats.length,
                             itemBuilder: (context, index) {
+                              final chat = state.chats[index];
                               return InkWell(
-                                onTap: () => context.pushNamed(
-                                  Routes.messages,
-                                  arguments: state.chats[index],
-                                ),
-                                child: ChatListtile(
-                                  chatModel: state.chats[index],
-                                ),
+                                onTap: () {
+                                  context.read<ChatsCubit>().markChatAsRead(
+                                    chat.uid,
+                                  );
+                                  context.pushNamed(
+                                    Routes.messages,
+                                    arguments: chat,
+                                  );
+                                },
+                                child: ChatListtile(chatModel: chat),
                               );
                             },
                           )

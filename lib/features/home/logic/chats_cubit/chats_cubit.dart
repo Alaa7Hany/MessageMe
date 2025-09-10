@@ -1,11 +1,8 @@
 import 'dart:async';
-
 import 'package:flutter_bloc/flutter_bloc.dart';
-
 import '../../../../core/helpers/my_logger.dart';
 import '../../../auth/logic/auth_cubit/auth_cubit.dart';
 import '../../data/repo/chats_repo.dart';
-
 import '../../../../core/services/dependency_injection_service.dart';
 import 'chats_state.dart';
 
@@ -15,23 +12,44 @@ class ChatsCubit extends Cubit<ChatsState> {
 
   StreamSubscription? _chatStream;
 
-  ChatsCubit(this._chatsRepo) : super(ChatsInitial());
+  StreamSubscription? _tickerSubscription;
+
+  ChatsCubit(this._chatsRepo) : super(ChatsInitial()) {
+    _startTicker();
+  }
 
   @override
   Future<void> close() {
     _chatStream?.cancel();
+    _tickerSubscription?.cancel();
     return super.close();
   }
 
+  void _startTicker() {
+    // This stream will emit a value every minute.
+    _tickerSubscription = Stream.periodic(const Duration(minutes: 1)).listen((
+      _,
+    ) {
+      // When the ticker fires, we check if we have chats loaded.
+      loadChats();
+    });
+  }
+
   void loadChats() async {
-    emit(ChatsLoading());
+    // This check is important. We only load chats if a user is logged in.
     final String? uid = _authCubit.currentUser?.uid;
     if (uid == null) {
-      MyLogger.red('User is not logged in to load chats');
+      // Don't emit loading, just return silently.
+      // The UI will show 'No messages yet' or a similar state.
       return;
     }
-    // Cancel any previous subscription to avoid multiple listeners
-    _chatStream?.cancel();
+
+    // Only show the full loading spinner on the first load.
+    if (state is! ChatsLoaded) {
+      emit(ChatsLoading());
+    }
+
+    _chatStream?.cancel(); // Cancel previous subscription to avoid leaks.
 
     try {
       _chatStream = _chatsRepo
@@ -39,7 +57,6 @@ class ChatsCubit extends Cubit<ChatsState> {
           .listen(
             (chats) {
               emit(ChatsLoaded(chats));
-              // MyLogger.green('Loaded Chats: ${chats.length}');
             },
             onError: (error) {
               emit(ChatsError('Failed to load chats'));
@@ -50,5 +67,16 @@ class ChatsCubit extends Cubit<ChatsState> {
       MyLogger.red('Error loading Chats: $e');
       emit(ChatsError('Failed to load chats'));
     }
+  }
+
+  void markChatAsRead(String chatId) {
+    // We get the current user's ID.
+    final String? uid = _authCubit.currentUser?.uid;
+    if (uid == null) return;
+
+    // We don't need to check the local state. We just tell the repository
+    // to reset the count in the database. The real-time stream from `loadChats`
+    // will automatically update the UI with the new data from Firestore.
+    _chatsRepo.resetUnreadCount(chatId, uid);
   }
 }
