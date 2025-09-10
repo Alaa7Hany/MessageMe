@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:message_me/features/messages/views/widgets/date_label.dart'; // 👈 Add this import
 
 import '../../../../core/utils/app_text_styles.dart';
 import '../../../../core/widgets/my_snackbar.dart';
@@ -27,7 +28,6 @@ class MessagesPage extends StatelessWidget {
     return BlocProvider(
       create: (context) {
         context.read<ChatsCubit>().markChatAsRead(chatModel.uid);
-
         return MessagesCubit(getIt(), chatModel);
       },
       child: Builder(
@@ -35,8 +35,6 @@ class MessagesPage extends StatelessWidget {
           cubit = MessagesCubit.get(context);
           return BlocConsumer<MessagesCubit, MessagesState>(
             listener: (context, state) {
-              // Always scroll to the bottom, when a new message arrives
-              // context.read<MessagesCubit>().scrollToBottom();
               if (state is MessagesError) {
                 MySnackbar.error(context, state.message);
               }
@@ -78,7 +76,7 @@ class MessagesPage extends StatelessWidget {
   ) {
     if (state is MessagesLoaded) {
       return Padding(
-        padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 6.0),
+        padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 6.0),
         child: Column(
           children: [
             Expanded(child: _buildMessagesList(state, cubit, currentId)),
@@ -110,14 +108,18 @@ class MessagesPage extends StatelessWidget {
     MessagesCubit cubit,
     String currentId,
   ) {
+    bool isSameDay(DateTime date1, DateTime date2) {
+      return date1.year == date2.year &&
+          date1.month == date2.month &&
+          date1.day == date2.day;
+    }
+
     return state.messages.isNotEmpty
         ? ListView.builder(
             controller: cubit.messagesListViewController,
             reverse: true,
-
             itemCount: state.messages.length + (state.hasMore ? 1 : 0),
             itemBuilder: (context, index) {
-              // If it's the last item and we have more to load, show a spinner
               if (index >= state.messages.length) {
                 return const Center(
                   child: Padding(
@@ -128,8 +130,28 @@ class MessagesPage extends StatelessWidget {
                   ),
                 );
               }
+
               final message = state.messages[index];
-              return MessageBubble(message: message, currentId: currentId);
+              final bool showDateLabel;
+
+              // Check if this is the oldest message or if the day has changed.
+              if (index == state.messages.length - 1 ||
+                  !isSameDay(
+                    message.timeSent,
+                    state.messages[index + 1].timeSent,
+                  )) {
+                showDateLabel = true;
+              } else {
+                showDateLabel = false;
+              }
+
+              // Return a Column containing the optional DateLabel and the MessageBubble.
+              return Column(
+                children: [
+                  if (showDateLabel) DateLabel(dateTime: message.timeSent),
+                  MessageBubble(message: message, currentId: currentId),
+                ],
+              );
             },
           )
         : Center(
