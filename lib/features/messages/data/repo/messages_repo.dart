@@ -132,4 +132,33 @@ class MessagesRepo {
       rethrow;
     }
   }
+
+  Future<void> reactToMessage({
+    required String chatId,
+    required String messageId,
+    required String userId,
+    required String reaction, // The emoji
+  }) async {
+    try {
+      final messagePath =
+          '${FirebaseKeys.chatsCollection}/$chatId/${FirebaseKeys.messagesCollection}/$messageId';
+
+      // If the reaction is empty, we remove the user's reaction.
+      // Otherwise, we set/update it.
+      if (reaction.isEmpty) {
+        await _database.updateData(
+          path: messagePath,
+          data: {'${FirebaseKeys.reactions}.$userId': FieldValue.delete()},
+        );
+      } else {
+        await _database.updateData(
+          path: messagePath,
+          data: {'${FirebaseKeys.reactions}.$userId': reaction},
+        );
+      }
+    } catch (e) {
+      MyLogger.red('Error reacting to message: $e');
+      rethrow;
+    }
+  }
 }

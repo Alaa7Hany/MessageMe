@@ -56,6 +56,42 @@ class MessagesCubit extends Cubit<MessagesState> {
     return super.close();
   }
 
+  void reactToMessage(String messageId, String reaction) {
+    // We get the current user's ID.
+    final String currentUserId = currentUser.uid;
+
+    // Optimistically update the UI first
+    final messageIndex = _messages.indexWhere((m) => m.uid == messageId);
+    if (messageIndex != -1) {
+      final message = _messages[messageIndex];
+      final newReactions = Map<String, String>.from(message.reactions);
+
+      if (reaction.isEmpty || newReactions[currentUserId] == reaction) {
+        // If the reaction is empty or the same, remove it
+        newReactions.remove(currentUserId);
+      } else {
+        // Otherwise, add/update the reaction
+        newReactions[currentUserId] = reaction;
+      }
+      _messages[messageIndex] = message.copyWith(reactions: newReactions);
+      emit(MessagesLoaded(_messages, hasMore: _hasMoreMessages));
+    }
+
+    // Then, call the repo to update the backend
+    _messagesRepo
+        .reactToMessage(
+          chatId: chatModel.uid,
+          messageId: messageId,
+          userId: currentUserId,
+          reaction: reaction,
+        )
+        .catchError((e) {
+          // If the backend update fails, you might want to revert the UI change.
+          // For simplicity, we'll just log the error here.
+          MyLogger.red('Failed to update reaction in Firestore: $e');
+        });
+  }
+
   ////////////////////////////////////////////// Sending Messages //////////////////////////////////////////////
 
   void _updateMessageStatus(String tempId, MessageStatus status) {

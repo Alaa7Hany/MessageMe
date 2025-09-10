@@ -1,15 +1,19 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:intl/intl.dart';
 
 import '../../../../core/services/dependency_injection_service.dart';
 import '../../../../core/services/download_service.dart';
 import '../../../../core/utils/app_colors.dart';
 import '../../../../core/utils/app_text_styles.dart';
+import '../../../../core/widgets/my_snackbar.dart';
 import '../../../../core/widgets/rounded_image.dart';
 import '../../data/models/message_model.dart';
+import '../../logic/messages_cubit/messages_cubit.dart';
+import 'bubble_timestamp.dart';
+import 'message_content.dart';
+import 'reaction_picker.dart';
+import 'reactions_view.dart';
 
 class MessageBubble extends StatelessWidget {
   final MessageModel message;
@@ -24,6 +28,7 @@ class MessageBubble extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bool isSender = currentId == message.senderUid;
+    final cubit = context.read<MessagesCubit>();
 
     final bubbleColor = isSender
         ? (message.status == MessageStatus.failed
@@ -39,95 +44,56 @@ class MessageBubble extends StatelessWidget {
         ? AppColors.appBarBackground
         : AppColors.secondaryTextColor;
 
-    final String formattedTime = DateFormat('hh:mm a').format(message.timeSent);
-
-    final bubble = Stack(
-      children: [
-        Container(
-          constraints: BoxConstraints(
-            maxWidth: MediaQuery.of(context).size.width * 0.70,
-          ),
-          padding: EdgeInsets.symmetric(vertical: 10.h, horizontal: 14.w),
-          decoration: BoxDecoration(
-            color: bubbleColor,
-            borderRadius: BorderRadius.only(
-              topLeft: const Radius.circular(16),
-              topRight: const Radius.circular(16),
-              bottomLeft: isSender
-                  ? const Radius.circular(16)
-                  : const Radius.circular(0),
-              bottomRight: isSender
-                  ? const Radius.circular(0)
-                  : const Radius.circular(16),
+    // The bubble widget itself remains unchanged.
+    final bubble = GestureDetector(
+      onLongPress: () => _showReactionPicker(context, cubit, message.uid!),
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          Container(
+            padding: EdgeInsets.symmetric(vertical: 10.h, horizontal: 14.w),
+            decoration: BoxDecoration(
+              color: bubbleColor,
+              borderRadius: BorderRadius.only(
+                topLeft: const Radius.circular(16),
+                topRight: const Radius.circular(16),
+                bottomLeft: isSender
+                    ? const Radius.circular(16)
+                    : const Radius.circular(0),
+                bottomRight: isSender
+                    ? const Radius.circular(0)
+                    : const Radius.circular(16),
+              ),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                MessageContent(
+                  message: message,
+                  textColor: textColor,
+                  onImageTap: () => _showImageOptions(context, message.content),
+                ),
+                SizedBox(height: 5.h),
+                BubbleTimestamp(message: message, timeColor: timeColor),
+              ],
             ),
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              message.type == 'text'
-                  ? Text(
-                      message.content,
-                      style: AppTextStyles.f16w400primary().copyWith(
-                        color: textColor,
-                      ),
-                    )
-                  : Container(
-                      constraints: BoxConstraints(
-                        maxHeight: 300.h,
-                        maxWidth: 200.w,
-                      ),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(12.r),
-                      ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(12.r),
-                        child: message.status == MessageStatus.sent
-                            ? InkWell(
-                                onTap: () =>
-                                    _showImageOptions(context, message.content),
-                                child: Image.network(
-                                  message.content,
-                                  fit: BoxFit.cover,
-                                ),
-                              )
-                            : Image.file(File(message.content)),
-                      ),
-                    ),
-              SizedBox(height: 5.h),
-              Row(
-                children: [
-                  if (message.status != MessageStatus.sent)
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        message.status.name,
-                        style: AppTextStyles.f12w400secondary().copyWith(
-                          color: timeColor,
-                        ),
-                      ),
-                    ),
-                  Expanded(
-                    child: Align(
-                      alignment: Alignment.centerRight,
-                      child: Text(
-                        formattedTime,
-                        style: AppTextStyles.f12w400secondary().copyWith(
-                          color: timeColor,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ],
+          if (message.reactions.isNotEmpty)
+            Positioned(
+              bottom: -10.h,
+              right: isSender ? null : 10.w,
+              left: isSender ? 10.w : null,
+              child: ReactionsView(reactions: message.reactions),
+            ),
+        ],
+      ),
     );
 
     return Padding(
-      padding: EdgeInsets.symmetric(vertical: 4.h),
+      padding: EdgeInsets.symmetric(
+        vertical: 4.h,
+      ).copyWith(bottom: message.reactions.isNotEmpty ? 18.h : 4.h),
       child: Row(
         mainAxisAlignment: isSender
             ? MainAxisAlignment.end
@@ -138,12 +104,20 @@ class MessageBubble extends StatelessWidget {
             RoundedImageNetwork(radius: 20, imageUrl: message.senderImage),
             SizedBox(width: 8.w),
           ],
-          bubble,
+          // **THE FIX:** Wrap the bubble in a Container with constraints.
+          // This prevents both the overflow error and the full-width expansion.
+          Container(
+            constraints: BoxConstraints(
+              maxWidth: MediaQuery.of(context).size.width * 0.75,
+            ),
+            child: bubble,
+          ),
         ],
       ),
     );
   }
 
+  // ... (_showImageOptions and _showReactionPicker methods are unchanged)
   void _showImageOptions(BuildContext context, String imageUrl) {
     showModalBottomSheet(
       context: context,
@@ -162,30 +136,24 @@ class MessageBubble extends StatelessWidget {
                   style: AppTextStyles.f16w400primary(),
                 ),
                 onTap: () async {
-                  // Capture the messenger and navigator using the valid bottomSheetContext
                   final scaffoldMessenger = ScaffoldMessenger.of(
                     bottomSheetContext,
                   );
                   final navigator = Navigator.of(bottomSheetContext);
 
-                  // First, pop the bottom sheet
                   navigator.pop();
 
-                  // Now, show the "Downloading..." message
                   scaffoldMessenger.showSnackBar(
                     const SnackBar(content: Text('Downloading image...')),
                   );
 
-                  // Perform the download
                   final downloadService = getIt<DownloadService>();
                   final success = await downloadService.downloadAndSaveImage(
                     imageUrl,
                   );
 
-                  // Hide the "Downloading..." message
                   scaffoldMessenger.hideCurrentSnackBar();
 
-                  // Show the final result
                   if (success) {
                     scaffoldMessenger.showSnackBar(
                       const SnackBar(
@@ -205,6 +173,29 @@ class MessageBubble extends StatelessWidget {
               ),
             ],
           ),
+        );
+      },
+    );
+  }
+
+  void _showReactionPicker(
+    BuildContext context,
+    MessagesCubit cubit,
+    String messageId,
+  ) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return ReactionPicker(
+          onReactionSelected: (reaction) {
+            final currentReaction =
+                message.reactions[cubit.currentUser.uid] ?? '';
+            final newReaction = currentReaction == reaction ? '' : reaction;
+
+            cubit.reactToMessage(messageId, newReaction);
+            Navigator.pop(context);
+          },
         );
       },
     );

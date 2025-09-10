@@ -39,6 +39,9 @@ class MessageModel {
   @JsonKey(includeFromJson: false, includeToJson: false)
   final DocumentSnapshot? rawDoc;
 
+  @JsonKey(name: FirebaseKeys.reactions, defaultValue: {})
+  final Map<String, String> reactions;
+
   MessageModel({
     this.uid,
     this.tempId,
@@ -50,6 +53,7 @@ class MessageModel {
     required this.type,
     required this.timeSent,
     this.rawDoc,
+    this.reactions = const {},
   });
 
   factory MessageModel.fromJson(Map<String, dynamic> json) =>
@@ -70,6 +74,7 @@ class MessageModel {
       timeSent: const TimestampToDateTimeConverter().fromJson(
         json[FirebaseKeys.timeSent],
       ),
+      reactions: Map<String, String>.from(json[FirebaseKeys.reactions] ?? {}),
       status: MessageStatus.sent,
       rawDoc: doc,
     );
@@ -80,6 +85,7 @@ class MessageModel {
     String? tempId,
     MessageStatus? status,
     String? content,
+    Map<String, String>? reactions,
   }) {
     return MessageModel(
       uid: uid ?? this.uid,
@@ -92,6 +98,7 @@ class MessageModel {
       type: type,
       timeSent: timeSent,
       rawDoc: rawDoc,
+      reactions: reactions ?? this.reactions,
     );
   }
 }
