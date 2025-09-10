@@ -21,6 +21,9 @@ class AuthCubit extends Cubit<AuthState> {
   UserModel? currentUser;
   RemoteMessage? _initialMessageFromTerminatedState;
 
+  // Add a private variable to track the last known status
+  bool? _lastKnownStatus;
+
   AuthCubit(this._authRepo) : super(AuthInitial()) {
     setupAuthStateListener();
     _checkForInitialMessage();
@@ -54,6 +57,10 @@ class AuthCubit extends Cubit<AuthState> {
           UserModel? userModel = await _authRepo.getUser(user.uid);
           if (userModel != null) {
             currentUser = userModel;
+
+            // Initialize the status tracker
+            _lastKnownStatus = currentUser!.isOnline;
+
             emit(AuthLoginSuccess("Login Successful"));
             MyLogger.cyan("Current User: ${userModel.name}");
             // get Chats once user is initialized
@@ -169,6 +176,7 @@ class AuthCubit extends Cubit<AuthState> {
     emit(AuthLoading());
     await updateUserStatus(false);
     await _authRepo.signOut();
+    _lastKnownStatus = null; // Reset on logout
     emit(AuthLoggedOut());
   }
 
@@ -182,9 +190,12 @@ class AuthCubit extends Cubit<AuthState> {
   }
 
   Future<void> updateUserStatus(bool isOnline) async {
-    if (currentUser != null) {
+    // Only update if the user exists and the status has actually changed
+    if (currentUser != null && isOnline != _lastKnownStatus) {
       try {
         await _authRepo.updateUserStatus(currentUser!.uid, isOnline);
+        // Update our tracker ONLY after a successful write
+        _lastKnownStatus = isOnline;
         MyLogger.cyan("User is now ${isOnline ? 'online' : 'offline'}");
       } catch (e) {
         MyLogger.red("Error updating online status: $e");

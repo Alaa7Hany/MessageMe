@@ -1,6 +1,6 @@
 const { onDocumentCreated } = require("firebase-functions/v2/firestore");
 const { initializeApp } = require("firebase-admin/app");
-const { getFirestore, FieldValue } = require("firebase-admin/firestore"); // Import FieldValue
+const { getFirestore, FieldValue } = require("firebase-admin/firestore");
 const { getMessaging } = require("firebase-admin/messaging");
 
 initializeApp();
@@ -24,26 +24,18 @@ exports.sendNewMessageNotification = onDocumentCreated(
         const chatData = chatDocSnap.data();
         const members = chatData.members;
 
-        // --- NEW LOGIC TO UPDATE UNREAD COUNTS ---
-        // 1. Prepare an update object.
         const unreadCountsUpdate = {};
-
-        // 2. For each member who is NOT the sender, increment their count.
         members.forEach((memberUid) => {
             if (memberUid !== senderUid) {
-                // Use dot notation to update a specific field in the map.
                 unreadCountsUpdate[`unread_counts.${memberUid}`] = FieldValue.increment(1);
             }
         });
 
-        // 3. Atomically update the unread counts in the chat document.
         if (Object.keys(unreadCountsUpdate).length > 0) {
             await chatDocRef.update(unreadCountsUpdate);
             console.log(`Updated unread counts for chat ${chatId}`);
         }
-        // --- END OF NEW LOGIC ---
 
-        // The rest of the function for sending notifications remains the same.
         const userPromises = members.map((uid) =>
             firestore.collection("Users").doc(uid).get(),
         );
@@ -58,10 +50,29 @@ exports.sendNewMessageNotification = onDocumentCreated(
             return;
         }
 
+        let notificationBody = '';
+        if (messageData.type === 'image') {
+            notificationBody = '📷 Attachment';
+        } else {
+            notificationBody = messageData.content;
+        }
+
         const payload = {
             notification: {
-                title: `New message from ${messageData.sender_name}`,
-                body: messageData.content,
+                title: `${messageData.sender_name}`,
+                body: notificationBody,
+            },
+            android: {
+                notification: {
+                    sound: "default",
+                },
+            },
+            apns: {
+                payload: {
+                    aps: {
+                        sound: "default",
+                    },
+                },
             },
             data: {
                 chatId: chatId,

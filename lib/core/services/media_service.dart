@@ -7,6 +7,9 @@ import 'package:permission_handler/permission_handler.dart';
 import '../helpers/my_logger.dart';
 
 class MediaService {
+  // Define the max file size in bytes (5MB)
+  static const int _maxFileSizeInBytes = 5 * 1024 * 1024;
+
   Future<PlatformFile?> pickImageFromLibrary() async {
     PermissionStatus status;
 
@@ -32,6 +35,20 @@ class MediaService {
       );
       if (result != null && result.files.isNotEmpty) {
         return result.files.first;
+      }
+      if (result != null && result.files.isNotEmpty) {
+        final file = result.files.first;
+
+        // FILE SIZE CHECK
+        if (file.size > _maxFileSizeInBytes) {
+          // Get the file size in MB for the error message
+          final sizeInMb = (file.size / (1024 * 1024)).toStringAsFixed(2);
+          throw Exception(
+            'File is too large ($sizeInMb MB). Please select a file smaller than 5 MB.',
+          );
+        }
+
+        return file;
       }
     } else if (status.isPermanentlyDenied) {
       await openAppSettings();

@@ -12,12 +12,27 @@ class ChatsCubit extends Cubit<ChatsState> {
 
   StreamSubscription? _chatStream;
 
-  ChatsCubit(this._chatsRepo) : super(ChatsInitial());
+  StreamSubscription? _tickerSubscription;
+
+  ChatsCubit(this._chatsRepo) : super(ChatsInitial()) {
+    _startTicker();
+  }
 
   @override
   Future<void> close() {
     _chatStream?.cancel();
+    _tickerSubscription?.cancel();
     return super.close();
+  }
+
+  void _startTicker() {
+    // This stream will emit a value every minute.
+    _tickerSubscription = Stream.periodic(const Duration(minutes: 1)).listen((
+      _,
+    ) {
+      // When the ticker fires, we check if we have chats loaded.
+      loadChats();
+    });
   }
 
   void loadChats() async {
