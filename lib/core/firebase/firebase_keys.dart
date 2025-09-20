@@ -27,6 +27,7 @@ class FirebaseKeys {
   static const String lastMessageType = 'last_message_type';
   static const String createdAt = 'created_at';
   static const String unreadCounts = 'unread_counts';
+  static const String activeChatId = 'active_chat_id';
 
   // Message Model Keys
   static const String content = 'content';

@@ -1,3 +1,5 @@
+// lib/features/messages/logic/messages_cubit/messages_cubit.dart
+
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -9,6 +11,7 @@ import '../../../../core/models/user_model.dart';
 import '../../../../core/services/dependency_injection_service.dart';
 import '../../../auth/logic/auth_cubit/auth_cubit.dart';
 import '../../../home/data/models/chat_model.dart';
+import '../../../home/logic/chats_cubit/chats_cubit.dart'; // Import ChatsCubit
 import '../../data/models/message_model.dart';
 import '../../data/repo/messages_repo.dart';
 import '../services/message_sending_service.dart';
@@ -68,6 +71,8 @@ class MessagesCubit extends Cubit<MessagesState> {
         unreadMessageIds,
         currentUser.uid,
       );
+      // Add this line to explicitly reset the chat's unread count
+      getIt<ChatsCubit>().markChatAsRead(chatModel.uid);
     }
   }
 
