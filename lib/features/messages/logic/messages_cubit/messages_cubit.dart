@@ -9,6 +9,7 @@ import '../../../../core/models/user_model.dart';
 import '../../../../core/services/dependency_injection_service.dart';
 import '../../../auth/logic/auth_cubit/auth_cubit.dart';
 import '../../../home/data/models/chat_model.dart';
+import '../../../home/logic/chats_cubit/chats_cubit.dart';
 import '../../data/models/message_model.dart';
 import '../../data/repo/messages_repo.dart';
 import '../services/message_sending_service.dart';
@@ -209,6 +210,9 @@ class MessagesCubit extends Cubit<MessagesState> {
           .listen(
             (newMessages) async {
               if (newMessages.isEmpty) return;
+              // By calling this again, we override any backend process that
+              // might have incremented the unread count in the meantime.
+              getIt<ChatsCubit>().markChatAsRead(chatModel.uid);
               bool wereMessagesAdded = false;
               for (final message in newMessages.reversed) {
                 final tempMessageIndex = _messages.indexWhere(
