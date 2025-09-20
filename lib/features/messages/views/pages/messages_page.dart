@@ -1,6 +1,8 @@
+// lib/features/messages/views/pages/messages_page.dart
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:message_me/features/messages/views/widgets/date_label.dart'; // 👈 Add this import
+import 'package:message_me/features/messages/views/widgets/date_label.dart';
 
 import '../../../../core/utils/app_text_styles.dart';
 import '../../../../core/widgets/my_snackbar.dart';
@@ -17,22 +19,37 @@ import '../../logic/messages_cubit/messages_cubit.dart';
 import '../../logic/messages_cubit/messages_state.dart';
 import '../widgets/messages_appbar.dart';
 
-class MessagesPage extends StatelessWidget {
+// Convert to a StatefulWidget
+class MessagesPage extends StatefulWidget {
   final ChatModel chatModel;
   const MessagesPage({super.key, required this.chatModel});
 
   @override
+  State<MessagesPage> createState() => _MessagesPageState();
+}
+
+class _MessagesPageState extends State<MessagesPage> {
+  // Store the chatModel in the state
+  late ChatModel _chatModel;
+
+  @override
+  void initState() {
+    super.initState();
+    _chatModel = widget.chatModel;
+  }
+
+  @override
   Widget build(BuildContext context) {
-    late final MessagesCubit cubit;
     final String currentId = AuthCubit.get(context).currentUser!.uid;
     return BlocProvider(
       create: (context) {
-        context.read<ChatsCubit>().markChatAsRead(chatModel.uid);
-        return MessagesCubit(getIt(), chatModel);
+        context.read<ChatsCubit>().markChatAsRead(_chatModel.uid);
+        // Pass the state's chatModel to the cubit
+        return MessagesCubit(getIt(), _chatModel);
       },
       child: Builder(
         builder: (context) {
-          cubit = MessagesCubit.get(context);
+          final cubit = MessagesCubit.get(context);
           return BlocConsumer<MessagesCubit, MessagesState>(
             listener: (context, state) {
               if (state is MessagesError) {
@@ -42,18 +59,23 @@ class MessagesPage extends StatelessWidget {
             builder: (context, state) {
               return Scaffold(
                 appBar: MessagesAppbar(
-                  chatModel: chatModel,
+                  // Use the state's chatModel for the AppBar
+                  chatModel: _chatModel,
                   context: context,
                   onTap: () async {
-                    final result = chatModel.isGroup
-                        ? await Navigator.pushNamed(
-                            context,
-                            Routes.groupSettings,
-                            arguments: chatModel,
-                          )
-                        : null;
-                    if (result == true) {
-                      cubit.updateChatData();
+                    if (_chatModel.isGroup) {
+                      final result = await Navigator.pushNamed(
+                        context,
+                        Routes.groupSettings,
+                        arguments: _chatModel,
+                      );
+
+                      // Check if we got an updated model back and update the state
+                      if (result != null && result is ChatModel) {
+                        setState(() {
+                          _chatModel = result;
+                        });
+                      }
                     }
                   },
                 ),
@@ -79,7 +101,15 @@ class MessagesPage extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 6.0),
         child: Column(
           children: [
-            Expanded(child: _buildMessagesList(state, cubit, currentId)),
+            // Pass the member count from the state's chat model
+            Expanded(
+              child: _buildMessagesList(
+                state,
+                cubit,
+                currentId,
+                _chatModel.membersIds.length,
+              ),
+            ),
             SendMessageField(
               controller: cubit.messageController,
               onSendText: () {
@@ -107,6 +137,7 @@ class MessagesPage extends StatelessWidget {
     MessagesLoaded state,
     MessagesCubit cubit,
     String currentId,
+    int memberCount,
   ) {
     bool isSameDay(DateTime date1, DateTime date2) {
       return date1.year == date2.year &&
@@ -118,23 +149,12 @@ class MessagesPage extends StatelessWidget {
         ? ListView.builder(
             controller: cubit.messagesListViewController,
             reverse: true,
-            itemCount: state.messages.length + (state.hasMore ? 1 : 0),
+            // Now we use a simple list from the state
+            itemCount: state.messages.length,
             itemBuilder: (context, index) {
-              if (index >= state.messages.length) {
-                return const Center(
-                  child: Padding(
-                    padding: EdgeInsets.all(8.0),
-                    child: CircularProgressIndicator(
-                      color: AppColors.accentColor,
-                    ),
-                  ),
-                );
-              }
-
               final message = state.messages[index];
               final bool showDateLabel;
 
-              // Check if this is the oldest message or if the day has changed.
               if (index == state.messages.length - 1 ||
                   !isSameDay(
                     message.timeSent,
@@ -145,11 +165,15 @@ class MessagesPage extends StatelessWidget {
                 showDateLabel = false;
               }
 
-              // Return a Column containing the optional DateLabel and the MessageBubble.
               return Column(
                 children: [
                   if (showDateLabel) DateLabel(dateTime: message.timeSent),
-                  MessageBubble(message: message, currentId: currentId),
+                  MessageBubble(
+                    message: message,
+                    currentId: currentId,
+                    // Pass the member count
+                    memberCount: memberCount,
+                  ),
                 ],
               );
             },

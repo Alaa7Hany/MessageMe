@@ -7,6 +7,7 @@ import '../../../../core/widgets/loading_screen_overlay.dart';
 import '../../../../core/widgets/my_snackbar.dart';
 import '../../../../core/widgets/my_textform_field.dart';
 import '../../../../core/widgets/rounded_image.dart';
+import '../../data/models/chat_model.dart';
 import '../widgets/user_listtile.dart';
 
 import '../../../../core/utils/app_text_styles.dart';
@@ -27,7 +28,7 @@ class SettingsPage extends StatelessWidget {
         } else if (state is SettingsUpdated) {
           MySnackbar.success(context, state.message);
           if (cubit.isGroupSettings) {
-            Navigator.pop(context, true);
+            Navigator.pop(context, cubit.currentSubject as ChatModel);
           }
         }
       },

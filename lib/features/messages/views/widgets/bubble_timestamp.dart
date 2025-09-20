@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
+import 'package:message_me/core/utils/app_colors.dart';
 
 import '../../../../core/utils/app_text_styles.dart';
 import '../../data/models/message_model.dart';
@@ -8,11 +9,15 @@ import '../../data/models/message_model.dart';
 class BubbleTimestamp extends StatelessWidget {
   final MessageModel message;
   final Color timeColor;
+  final String currentUserId;
+  final int memberCount;
 
   const BubbleTimestamp({
     super.key,
     required this.message,
     required this.timeColor,
+    required this.currentUserId,
+    required this.memberCount,
   });
 
   @override
@@ -36,7 +41,39 @@ class BubbleTimestamp extends StatelessWidget {
           formattedTime,
           style: AppTextStyles.f12w400secondary().copyWith(color: timeColor),
         ),
+        if (message.senderUid == currentUserId) ...[
+          SizedBox(width: 8.w),
+          _ReadStatusIcon(
+            status: message.getReadStatus(currentUserId, memberCount),
+          ),
+        ],
       ],
     );
+  }
+}
+
+class _ReadStatusIcon extends StatelessWidget {
+  final MessageReadStatus status;
+
+  const _ReadStatusIcon({required this.status});
+
+  @override
+  Widget build(BuildContext context) {
+    switch (status) {
+      case MessageReadStatus.read:
+        return Icon(Icons.done_all, color: Colors.blue, size: 16.r);
+      case MessageReadStatus.delivered:
+        return Icon(
+          Icons.done_all,
+          color: AppColors.secondaryTextColor,
+          size: 16.r,
+        );
+      case MessageReadStatus.sent:
+        return Icon(
+          Icons.done,
+          color: AppColors.secondaryTextColor,
+          size: 16.r,
+        );
+    }
   }
 }

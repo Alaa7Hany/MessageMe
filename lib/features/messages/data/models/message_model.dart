@@ -1,3 +1,5 @@
+// lib/features/messages/data/models/message_model.dart
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:json_annotation/json_annotation.dart';
 import '../../../../core/firebase/firebase_keys.dart';
@@ -7,6 +9,8 @@ import '../../../../core/helpers/time_stamp_convertor.dart';
 part 'message_model.g.dart';
 
 enum MessageStatus { sending, sent, failed }
+
+enum MessageReadStatus { sent, delivered, read }
 
 @JsonSerializable()
 class MessageModel {
@@ -42,6 +46,9 @@ class MessageModel {
   @JsonKey(name: FirebaseKeys.reactions, defaultValue: {})
   final Map<String, String> reactions;
 
+  @JsonKey(name: FirebaseKeys.readBy, defaultValue: {})
+  final Map<String, DateTime> readBy;
+
   MessageModel({
     this.uid,
     this.tempId,
@@ -54,6 +61,7 @@ class MessageModel {
     required this.timeSent,
     this.rawDoc,
     this.reactions = const {},
+    this.readBy = const {},
   });
 
   factory MessageModel.fromJson(Map<String, dynamic> json) =>
@@ -63,6 +71,8 @@ class MessageModel {
 
   factory MessageModel.fromSnapshot(DocumentSnapshot doc) {
     final json = doc.data() as Map<String, dynamic>;
+    final timeSentData = json[FirebaseKeys.timeSent];
+
     return MessageModel(
       uid: json[FirebaseKeys.uid],
       tempId: json[FirebaseKeys.tempId],
@@ -71,10 +81,18 @@ class MessageModel {
       senderImage: json[FirebaseKeys.senderImage],
       content: json[FirebaseKeys.content],
       type: json[FirebaseKeys.type],
-      timeSent: const TimestampToDateTimeConverter().fromJson(
-        json[FirebaseKeys.timeSent],
-      ),
+      // Make the timeSent parsing more robust
+      timeSent: timeSentData is Timestamp
+          ? timeSentData.toDate()
+          : DateTime.now(),
       reactions: Map<String, String>.from(json[FirebaseKeys.reactions] ?? {}),
+      // Fix the unsafe cast for the readBy map
+      readBy:
+          (json[FirebaseKeys.readBy] as Map<String, dynamic>?)?.map((k, e) {
+            final timestamp = e as Timestamp?;
+            return MapEntry(k, timestamp?.toDate() ?? DateTime.now());
+          }) ??
+          {},
       status: MessageStatus.sent,
       rawDoc: doc,
     );
@@ -86,6 +104,7 @@ class MessageModel {
     MessageStatus? status,
     String? content,
     Map<String, String>? reactions,
+    Map<String, DateTime>? readBy,
   }) {
     return MessageModel(
       uid: uid ?? this.uid,
@@ -99,6 +118,16 @@ class MessageModel {
       timeSent: timeSent,
       rawDoc: rawDoc,
       reactions: reactions ?? this.reactions,
+      readBy: readBy ?? this.readBy,
     );
+  }
+
+  MessageReadStatus getReadStatus(String currentUserId, int memberCount) {
+    if (readBy.length == memberCount - 1) {
+      return MessageReadStatus.read;
+    } else if (readBy.isNotEmpty) {
+      return MessageReadStatus.delivered;
+    }
+    return MessageReadStatus.sent;
   }
 }

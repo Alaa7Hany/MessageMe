@@ -17,11 +17,13 @@ import 'reactions_view.dart';
 class MessageBubble extends StatelessWidget {
   final MessageModel message;
   final String currentId;
+  final int memberCount;
 
   const MessageBubble({
     super.key,
     required this.message,
     required this.currentId,
+    required this.memberCount,
   });
 
   @override
@@ -74,7 +76,12 @@ class MessageBubble extends StatelessWidget {
                   onImageTap: () => _showImageOptions(context, message.content),
                 ),
                 SizedBox(height: 5.h),
-                BubbleTimestamp(message: message, timeColor: timeColor),
+                BubbleTimestamp(
+                  message: message,
+                  timeColor: timeColor,
+                  currentUserId: currentId,
+                  memberCount: memberCount,
+                ),
               ],
             ),
           ),

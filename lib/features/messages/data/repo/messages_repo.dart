@@ -48,29 +48,23 @@ class MessagesRepo {
     }
   }
 
-  Stream<List<MessageModel>> getNewMessagesStream(
-    String chatId,
-    DateTime lastVisible,
-  ) {
+  Stream<List<MessageModel>> getMessagesStream(String chatId) {
     try {
       final String path =
           '${FirebaseKeys.chatsCollection}/$chatId/${FirebaseKeys.messagesCollection}';
-      final timestamp = Timestamp.fromDate(lastVisible);
-
       return _database
           .getCollectionStream(
             path: path,
-            queryBuilder: (query) => query
-                .orderBy(FirebaseKeys.timeSent, descending: false)
-                .where(FirebaseKeys.timeSent, isGreaterThan: timestamp),
+            queryBuilder: (query) =>
+                query.orderBy(FirebaseKeys.timeSent, descending: true),
           )
-          .map((snapshot) {
-            return snapshot.docs
+          .map(
+            (snapshot) => snapshot.docs
                 .map((doc) => MessageModel.fromSnapshot(doc))
-                .toList();
-          });
+                .toList(),
+          );
     } catch (e) {
-      MyLogger.red('Error getting new messages stream: $e');
+      MyLogger.red('Error getting messages stream: $e');
       rethrow;
     }
   }
@@ -106,6 +100,28 @@ class MessagesRepo {
     } catch (e) {
       MyLogger.red('Error sending message in MessagesRepo: $e');
       rethrow;
+    }
+  }
+
+  Future<void> markMessagesAsRead(
+    String chatId,
+    List<String> messageIds,
+    String userId,
+  ) async {
+    if (messageIds.isEmpty) return;
+    try {
+      await _database.runBatch((batch, firestore) {
+        final now = FieldValue.serverTimestamp();
+        for (final messageId in messageIds) {
+          final messageRef = firestore.doc(
+            '${FirebaseKeys.chatsCollection}/$chatId/${FirebaseKeys.messagesCollection}/$messageId',
+          );
+          batch.update(messageRef, {'${FirebaseKeys.readBy}.$userId': now});
+        }
+      });
+    } catch (e) {
+      MyLogger.red('Error marking messages as read in batch: $e');
+      // No rethrow, as this is not a critical UI-blocking error
     }
   }
 

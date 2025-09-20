@@ -34,12 +34,18 @@ class MessageContent extends StatelessWidget {
                 // Replace Image.network with CachedNetworkImage
                 child: CachedNetworkImage(
                   imageUrl: message.content,
+                  fadeOutDuration: const Duration(milliseconds: 100),
+                  fadeInDuration: const Duration(milliseconds: 100),
+                  placeholderFadeInDuration: const Duration(milliseconds: 100),
+                  fadeInCurve: Curves.easeIn,
+                  fadeOutCurve: Curves.easeOut,
+
                   fit: BoxFit.cover,
                   // This placeholder is robust and will be shown from the first frame.
                   placeholder: (context, url) => Container(
                     // Give the placeholder a default size
                     width: 200.w,
-                    height: 200.w,
+                    height: 250.w,
                     color: AppColors.appBarBackground.withOpacity(0.5),
                     child: const Center(
                       child: Icon(

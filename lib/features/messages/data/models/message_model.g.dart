@@ -19,6 +19,11 @@ MessageModel _$MessageModelFromJson(Map<String, dynamic> json) => MessageModel(
         (k, e) => MapEntry(k, e as String),
       ) ??
       {},
+  readBy:
+      (json['read_by'] as Map<String, dynamic>?)?.map(
+        (k, e) => MapEntry(k, DateTime.parse(e as String)),
+      ) ??
+      {},
 );
 
 Map<String, dynamic> _$MessageModelToJson(
@@ -32,4 +37,5 @@ Map<String, dynamic> _$MessageModelToJson(
   'type': instance.type,
   'time_sent': const TimestampToDateTimeConverter().toJson(instance.timeSent),
   'reactions': instance.reactions,
+  'read_by': instance.readBy.map((k, e) => MapEntry(k, e.toIso8601String())),
 };

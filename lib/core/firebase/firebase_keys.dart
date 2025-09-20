@@ -37,4 +37,5 @@ class FirebaseKeys {
   static const String type = 'type';
   static const String tempId = 'temp_id';
   static const String reactions = 'reactions';
+  static const String readBy = 'read_by';
 }
