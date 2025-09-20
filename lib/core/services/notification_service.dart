@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/material.dart';
 import 'package:message_me/core/firebase/database_service.dart';
 import 'package:message_me/core/firebase/firebase_keys.dart';
 import 'package:message_me/core/helpers/my_logger.dart';
@@ -112,7 +113,11 @@ class NotificationService {
 
     if (chatModel != null) {
       // Use the navigation service to push the route
-      navigationService.pushNamed(Routes.messages, arguments: chatModel);
+      navigationService.navigatorKey.currentState?.pushNamedAndRemoveUntil(
+        Routes.messages,
+        ModalRoute.withName(Routes.home),
+        arguments: chatModel,
+      );
     } else {
       MyLogger.red('Could not find chat with ID: $chatId to navigate.');
     }
