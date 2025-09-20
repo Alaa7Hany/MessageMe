@@ -91,6 +91,7 @@ class MessagesRepo {
 
         final messageData = message.toJson();
         messageData[FirebaseKeys.uid] = newMessageRef.id;
+        messageData[FirebaseKeys.timeSent] = FieldValue.serverTimestamp();
 
         // Operation 1: Set the new message data
         batch.set(newMessageRef, messageData);
@@ -99,7 +100,7 @@ class MessagesRepo {
         batch.update(chatRef, {
           FirebaseKeys.lastMessageContent: message.content,
           FirebaseKeys.lastMessageType: message.type,
-          FirebaseKeys.lastActive: message.timeSent,
+          FirebaseKeys.lastActive: FieldValue.serverTimestamp(),
         });
       });
     } catch (e) {

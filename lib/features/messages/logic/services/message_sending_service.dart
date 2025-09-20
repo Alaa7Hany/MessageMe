@@ -62,7 +62,7 @@ class MessageSendingService {
     // 2. The send operation is now a separate async function.
     final sendFuture = _uploadAndSendFinalImage(
       file: file,
-      timeSent: time,
+
       tempId: clientGeneratedId,
     );
 
@@ -73,7 +73,7 @@ class MessageSendingService {
   /// Private helper that contains the actual async work for images.
   Future<void> _uploadAndSendFinalImage({
     required PlatformFile file,
-    required DateTime timeSent,
+
     required String tempId,
   }) async {
     final String? imageUrl = await _messagesRepo.uploadImageToStorage(
@@ -87,7 +87,7 @@ class MessageSendingService {
       content: imageUrl,
       type: 'image',
       status: MessageStatus.sent,
-      time: timeSent,
+      time: DateTime.now(),
     ).copyWith(tempId: tempId);
 
     await _messagesRepo.sendMessage(_chatId, finalMessage);
