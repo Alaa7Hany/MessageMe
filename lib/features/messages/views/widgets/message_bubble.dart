@@ -186,15 +186,17 @@ class MessageBubble extends StatelessWidget {
       context: context,
       backgroundColor: Colors.transparent,
       builder: (context) {
-        return ReactionPicker(
-          onReactionSelected: (reaction) {
-            final currentReaction =
-                message.reactions[cubit.currentUser.uid] ?? '';
-            final newReaction = currentReaction == reaction ? '' : reaction;
+        return SafeArea(
+          child: ReactionPicker(
+            onReactionSelected: (reaction) {
+              final currentReaction =
+                  message.reactions[cubit.currentUser.uid] ?? '';
+              final newReaction = currentReaction == reaction ? '' : reaction;
 
-            cubit.reactToMessage(messageId, newReaction);
-            Navigator.pop(context);
-          },
+              cubit.reactToMessage(messageId, newReaction);
+              Navigator.pop(context);
+            },
+          ),
         );
       },
     );
