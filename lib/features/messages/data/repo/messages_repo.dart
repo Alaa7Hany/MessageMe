@@ -118,10 +118,10 @@ class MessagesRepo {
           );
           batch.update(messageRef, {'${FirebaseKeys.readBy}.$userId': now});
         }
-        final chatRef = firestore.doc(
-          '${FirebaseKeys.chatsCollection}/$chatId',
-        );
-        batch.update(chatRef, {'${FirebaseKeys.unreadCounts}.$userId': 0});
+        // final chatRef = firestore.doc(
+        //   '${FirebaseKeys.chatsCollection}/$chatId',
+        // );
+        // batch.update(chatRef, {'${FirebaseKeys.unreadCounts}.$userId': 0});
       });
     } catch (e) {
       MyLogger.red('Error marking messages as read in batch: $e');

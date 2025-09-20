@@ -8,6 +8,7 @@ import '../../../../core/utils/app_text_styles.dart';
 import '../../../../core/widgets/my_snackbar.dart';
 import '../../../home/logic/chats_cubit/chats_cubit.dart';
 import '../widgets/message_bubble.dart';
+import '../widgets/new_message_animation.dart';
 import '../widgets/send_message_field.dart';
 
 import '../../../../core/routing/routes.dart';
@@ -31,6 +32,8 @@ class MessagesPage extends StatefulWidget {
 class _MessagesPageState extends State<MessagesPage> {
   // Store the chatModel in the state
   late ChatModel _chatModel;
+  // Keep track of the message count to detect new messages
+  int _messageCount = 0;
 
   @override
   void initState() {
@@ -97,6 +100,10 @@ class _MessagesPageState extends State<MessagesPage> {
     MessagesCubit cubit,
   ) {
     if (state is MessagesLoaded) {
+      // Logic to detect if a new message has arrived
+      final bool hasNewMessage = state.messages.length > _messageCount;
+      _messageCount = state.messages.length;
+
       return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 6.0),
         child: Column(
@@ -108,6 +115,7 @@ class _MessagesPageState extends State<MessagesPage> {
                 cubit,
                 currentId,
                 _chatModel.membersIds.length,
+                hasNewMessage, // Pass the flag here
               ),
             ),
             SendMessageField(
@@ -138,6 +146,7 @@ class _MessagesPageState extends State<MessagesPage> {
     MessagesCubit cubit,
     String currentId,
     int memberCount,
+    bool hasNewMessage, // Receive the flag here
   ) {
     bool isSameDay(DateTime date1, DateTime date2) {
       return date1.year == date2.year &&
@@ -149,11 +158,11 @@ class _MessagesPageState extends State<MessagesPage> {
         ? ListView.builder(
             controller: cubit.messagesListViewController,
             reverse: true,
-            // Now we use a simple list from the state
             itemCount: state.messages.length,
             itemBuilder: (context, index) {
               final message = state.messages[index];
               final bool showDateLabel;
+              final bool shouldAnimate = index == 0 && hasNewMessage;
 
               if (index == state.messages.length - 1 ||
                   !isSameDay(
@@ -165,15 +174,23 @@ class _MessagesPageState extends State<MessagesPage> {
                 showDateLabel = false;
               }
 
+              final messageBubble = MessageBubble(
+                message: message,
+                currentId: currentId,
+                memberCount: memberCount,
+              );
+
               return Column(
                 children: [
                   if (showDateLabel) DateLabel(dateTime: message.timeSent),
-                  MessageBubble(
-                    message: message,
-                    currentId: currentId,
-                    // Pass the member count
-                    memberCount: memberCount,
-                  ),
+                  if (shouldAnimate)
+                    NewMessageAnimation(
+                      // THE FIX IS HERE: Add a unique key
+                      key: ValueKey(message.uid ?? message.tempId),
+                      child: messageBubble,
+                    )
+                  else
+                    messageBubble,
                 ],
               );
             },
@@ -187,3 +204,5 @@ class _MessagesPageState extends State<MessagesPage> {
           );
   }
 }
+
+// Add the animation widget class here...
